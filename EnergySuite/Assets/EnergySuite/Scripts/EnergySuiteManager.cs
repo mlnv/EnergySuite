@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 namespace EnergySuite
 {
-    public class EnergySuiteManager : MonoBehaviour
+    public class EnergySuiteManager : Singleton<EnergySuiteManager>
     {
         #region Public Vars
 
@@ -26,8 +25,10 @@ namespace EnergySuite
 
         #endregion
 
-        void Awake()
+        public override void Awake()
         {
+            base.Awake();
+
             _timeServer = new TimeServer();
             CheckAmountAdded();
         }
@@ -74,6 +75,12 @@ namespace EnergySuite
         #endregion
 
         #region Public Methods
+
+        public void AddEnergy(int amount)
+        {
+            OnEnergyAdded(amount);
+            _timeServer.SetTimeLastAdded();
+        }
 
         #endregion
 

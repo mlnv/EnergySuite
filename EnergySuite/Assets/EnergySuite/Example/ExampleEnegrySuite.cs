@@ -21,8 +21,8 @@ namespace EnergySuite
 
         public Text CurrentAmountText;
         public Text TimeLeftText;
-
-        public EnergySuiteManager EnergySuiteManager;
+        public Button AddEnergyButton;
+        public Button UseEnergyButton;
 
         #endregion
 
@@ -36,15 +36,22 @@ namespace EnergySuite
         void OnEnable()
         {
             CurrentAmount = LoadAmount();
-
-            EnergySuiteManager.OnEnergyAdded += OnEnergyAdded;
-            EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
+            Time.timeScale = 0;
+            EnergySuiteManager.Instance.OnEnergyAdded += OnEnergyAdded;
+            EnergySuiteManager.Instance.OnTimeLeftChanged += OnTimeLeftChanged;
+            AddEnergyButton.onClick.AddListener(OnAddEnergyButtonClicked);
+            UseEnergyButton.onClick.AddListener(OnUseEnergyButtonClicked);
         }
 
         void OnDisable()
         {
-            EnergySuiteManager.OnEnergyAdded -= OnEnergyAdded;
-            EnergySuiteManager.OnTimeLeftChanged -= OnTimeLeftChanged;
+            if (EnergySuiteManager.Instance != null)
+            {
+                EnergySuiteManager.Instance.OnEnergyAdded -= OnEnergyAdded;
+                EnergySuiteManager.Instance.OnTimeLeftChanged -= OnTimeLeftChanged;
+            }
+            AddEnergyButton.onClick.RemoveListener(OnAddEnergyButtonClicked);
+            UseEnergyButton.onClick.RemoveListener(OnUseEnergyButtonClicked);
         }
 
         void OnDestroy()
@@ -54,9 +61,21 @@ namespace EnergySuite
 
         #region Event Handlers
 
+        void OnAddEnergyButtonClicked()
+        {
+            EnergySuiteManager.Instance.AddEnergy(1);
+        }
+
+        void OnUseEnergyButtonClicked()
+        {
+            if (CurrentAmount - 1 >= 0)
+                CurrentAmount--;
+        }
+
         void OnEnergyAdded(int amount)
         {
-            CurrentAmount += amount;
+            if (CurrentAmount + amount <= EnergySuiteConfig.MaxAmount)
+                CurrentAmount += amount;
         }
 
         void OnTimeLeftChanged(TimeSpan timeLeft)
