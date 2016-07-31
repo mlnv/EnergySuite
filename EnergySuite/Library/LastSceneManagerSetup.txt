@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/EnergySuite/Example/EnergySuiteExample.unity
-  isLoaded: 1
-  isActive: 1
