@@ -39,7 +39,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    public virtual void Awake()
+    protected virtual void Awake()
     {
         if (FindObjectsOfType(typeof (T)).Length > 1)
         {

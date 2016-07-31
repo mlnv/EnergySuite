@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections;
 
 namespace EnergySuite
 {
@@ -19,58 +20,53 @@ namespace EnergySuite
 
         #region Private Vars
 
-        TimeServer _timeServer;
-        bool _fromPaused;
-        bool _waitForCheck = true;
+        TimeServerHandler _timeServerHandler;
 
         #endregion
 
-        public override void Awake()
+        protected override void Awake()
         {
             base.Awake();
+            _timeServerHandler = new TimeServerHandler();
 
-            _timeServer = new TimeServer();
-            CheckAmountAdded();
+            _timeServerHandler.OnEnergyAdded += OnEnergyAddedTimeServerHandler;
+            _timeServerHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
+
+            _timeServerHandler.CheckAmountAdded();
+        }
+
+        void OnDisable()
+        {
+            _timeServerHandler.OnEnergyAdded -= OnEnergyAddedTimeServerHandler;
+            _timeServerHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
         }
 
         void Update()
         {
-            if (_waitForCheck)
-                return;
-
-            if (_timeServer.GetTimeToNextAdd() > TimeSpan.Zero)
-            {
-                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
-            }
-            else
-            {
-                OnEnergyAdded(1);
-                _timeServer.SetTimeLastAdded();
-            }
+            _timeServerHandler.Update();
         }
 
         void OnDestroy()
         {
-            _timeServer.SetLastClosedTime();
-            _fromPaused = false;
-            _waitForCheck = true;
+            _timeServerHandler.OnDestroy();
         }
 
         void OnApplicationPause(bool pauseStatus)
         {
-            if (pauseStatus)
-            {
-                _timeServer.SetLastClosedTime();
-                _fromPaused = true;
-            }
-            else if (_fromPaused)
-            {
-                _fromPaused = false;
-                CheckAmountAdded();
-            }
+            _timeServerHandler.OnApplicationPause(pauseStatus);
         }
 
         #region Event Handlers
+
+        void OnEnergyAddedTimeServerHandler(int amount)
+        {
+            OnEnergyAdded(amount);
+        }
+
+        void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
+        {
+            OnTimeLeftChanged(timeLeft);
+        }
 
         #endregion
 
@@ -79,61 +75,12 @@ namespace EnergySuite
         public void AddEnergy(int amount)
         {
             OnEnergyAdded(amount);
-            _timeServer.SetTimeLastAdded();
+            _timeServerHandler.SetLastTimeAdded();
         }
 
         #endregion
 
         #region Private Methods
-
-        void CheckAmountAdded()
-        {
-            int result = 0;
-
-            DateTime lastClosedTime = _timeServer.GetLastClosedTime();
-            TimeSpan timeLeftToAddEnergy = _timeServer.GetTimeToNextAdd();
-            TimeSpan timeToAddEnergy = GetTimeToAddEnergy();
-
-            DateTime lastTimeAdded = DateTime.Now;
-            DateTime timeAddedEnergy = lastClosedTime.Add(timeLeftToAddEnergy);
-
-            if (timeAddedEnergy > DateTime.Now)
-            {
-                _waitForCheck = false;
-                return;
-            }
-
-            result++;
-            lastTimeAdded = timeAddedEnergy;
-
-            while (true)
-            {
-                DateTime newLastTimeAdded = lastTimeAdded.Add(timeToAddEnergy);
-
-                if (newLastTimeAdded > DateTime.Now)
-                {
-                    break;
-                }
-
-                result++;
-                lastTimeAdded = newLastTimeAdded;
-            }
-
-            if (result > 0)
-            {
-                OnEnergyAdded(result);
-                _timeServer.SetTimeLastAdded(lastTimeAdded);
-            }
-
-            _waitForCheck = false;
-        }
-
-        TimeSpan GetTimeToAddEnergy()
-        {
-            TimeSpan timeToAddEnergyMinutes = TimeSpan.FromMinutes(EnergySuiteConfig.TimeToReloadMinutes);
-            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds);
-            return timeToAddEnergyMinutes.Add(timeToAddEnergySeconds);
-        }
 
         #endregion
     }
