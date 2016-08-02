@@ -89,23 +89,24 @@ namespace EnergySuite
 
         void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
         {
-            OnTimeLeftChanged(timeLeft.Add(new TimeSpan(0,0,1)));
+            OnTimeLeftChanged(timeLeft.Add(new TimeSpan(0, 0, 1)));
         }
 
         #endregion
 
         #region Public Methods
 
-        public void AddEnergy(int amount, DateTime? customDateTime = null)
+        public void AddEnergy(int amount, bool setTime = true, DateTime? customDateTime = null)
         {
             _energyInventory.Add(amount);
 
-            if (customDateTime == null)
-                _timeServerHandler.SetLastTimeAdded();
-            else
-                _timeServerHandler.SetLastTimeAdded(customDateTime);
-
-            _timeServerHandler.CheckCanAddOne();
+            if (setTime)
+            {
+                if (customDateTime == null)
+                    _timeServerHandler.SetLastTimeAdded();
+                else
+                    _timeServerHandler.SetLastTimeAdded(customDateTime);
+            }
         }
 
         public bool UseEnergy(int amount)

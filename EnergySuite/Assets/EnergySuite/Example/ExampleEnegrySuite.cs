@@ -43,14 +43,14 @@ namespace EnergySuite
 
         void Start()
         {
-            CurrentAmountText.text = EnergySuiteManager.Instance.Amount.ToString();
+            CurrentAmountText.text = EnergySuiteManager.Instance.Amount + "/" + EnergySuiteConfig.MaxAmount;
         }
 
         #region Event Handlers
 
         void OnAddEnergyButtonClicked()
         {
-            EnergySuiteManager.Instance.AddEnergy(1);
+            EnergySuiteManager.Instance.AddEnergy(1, false);
         }
 
         void OnUseEnergyButtonClicked()
@@ -60,7 +60,7 @@ namespace EnergySuite
 
         void OnEnergyAdded(int amount)
         {
-            CurrentAmountText.text = amount.ToString();
+            CurrentAmountText.text = amount + "/" + EnergySuiteConfig.MaxAmount;
         }
 
         void OnTimeLeftChanged(TimeSpan timeLeft)

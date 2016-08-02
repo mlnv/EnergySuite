@@ -114,7 +114,7 @@ namespace EnergySuite
 
             if (result > 0)
             {
-                EnergySuiteManager.Instance.AddEnergy(result);
+                EnergySuiteManager.Instance.AddEnergy(result, true, lastTimeAdded);
             }
 
             _waitForCheck = false;
@@ -139,7 +139,7 @@ namespace EnergySuite
             }
             else
             {
-                EnergySuiteManager.Instance.AddEnergy(1);
+                EnergySuiteManager.Instance.AddEnergy(1, true);
                 OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
             }
         }
