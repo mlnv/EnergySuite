@@ -123,7 +123,7 @@ namespace EnergySuite
         public TimeSpan GetTimeToAddEnergy()
         {
             TimeSpan timeToAddEnergyMinutes = TimeSpan.FromMinutes(EnergySuiteConfig.TimeToReloadMinutes);
-            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds + 1);
+            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds);
             return timeToAddEnergyMinutes.Add(timeToAddEnergySeconds);
         }
 

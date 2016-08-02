@@ -74,7 +74,7 @@ namespace EnergySuite
 
         TimeSpan GetTimeLeft()
         {
-            DateTime timeToAddEnergy = GetTimeFromLastAdded().AddMinutes(EnergySuiteConfig.TimeToReloadMinutes).AddSeconds(EnergySuiteConfig.TimeToReloadSeconds + 1);
+            DateTime timeToAddEnergy = GetTimeFromLastAdded().AddMinutes(EnergySuiteConfig.TimeToReloadMinutes).AddSeconds(EnergySuiteConfig.TimeToReloadSeconds);
             TimeSpan result = timeToAddEnergy.Subtract(DateTime.Now);
             return result;
         }

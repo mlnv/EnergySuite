@@ -89,7 +89,7 @@ namespace EnergySuite
 
         void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
         {
-            OnTimeLeftChanged(timeLeft);
+            OnTimeLeftChanged(timeLeft.Add(new TimeSpan(0,0,1)));
         }
 
         #endregion
