@@ -8,10 +8,6 @@ namespace EnergySuite
     {
         #region Public Vars
 
-        public Action<int> OnEnergyAdded = delegate
-        {
-        };
-
         public Action<TimeSpan> OnTimeLeftChanged = delegate
         {
         };
@@ -77,26 +73,12 @@ namespace EnergySuite
 
         #region Public Methods
 
-        public void SetLastTimeAdded()
+        public void SetLastTimeAdded(DateTime? customDateTime = null)
         {
-            _timeServer.SetTimeLastAdded();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        void CheckCanAddOne()
-        {
-            if (_timeServer.GetTimeToNextAdd() > TimeSpan.Zero)
-            {
-                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
-            }
-            else
-            {
-                OnEnergyAdded(1);
+            if (customDateTime == null)
                 _timeServer.SetTimeLastAdded();
-            }
+            else
+                _timeServer.SetTimeLastAdded(customDateTime);
         }
 
         public void CheckAmountAdded()
@@ -132,18 +114,34 @@ namespace EnergySuite
 
             if (result > 0)
             {
-                OnEnergyAdded(result);
-                _timeServer.SetTimeLastAdded(lastTimeAdded);
+                EnergySuiteManager.Instance.AddEnergy(result);
             }
 
             _waitForCheck = false;
         }
 
-        TimeSpan GetTimeToAddEnergy()
+        public TimeSpan GetTimeToAddEnergy()
         {
             TimeSpan timeToAddEnergyMinutes = TimeSpan.FromMinutes(EnergySuiteConfig.TimeToReloadMinutes);
-            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds);
+            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds + 1);
             return timeToAddEnergyMinutes.Add(timeToAddEnergySeconds);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        public void CheckCanAddOne()
+        {
+            if (_timeServer.GetTimeToNextAdd() > TimeSpan.Zero)
+            {
+                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
+            }
+            else
+            {
+                EnergySuiteManager.Instance.AddEnergy(1);
+                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
+            }
         }
 
         #endregion

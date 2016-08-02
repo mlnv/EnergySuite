@@ -8,7 +8,7 @@ namespace EnergySuite
     {
         #region Public Vars
 
-        public Action<int> OnEnergyAdded = delegate
+        public Action<int> OnEnergyChanged = delegate
         {
         };
 
@@ -16,11 +16,25 @@ namespace EnergySuite
         {
         };
 
+        public int Amount
+        {
+            get
+            {
+                if (_energyInventory != null)
+                    return _energyInventory.Amount;
+                else
+                    return 0;
+            }
+            private set{ _amount = value; }
+        }
+
         #endregion
 
         #region Private Vars
 
         TimeServerHandler _timeServerHandler;
+        EnergyInventory _energyInventory;
+        int _amount;
 
         #endregion
 
@@ -28,8 +42,11 @@ namespace EnergySuite
         {
             base.Awake();
             _timeServerHandler = new TimeServerHandler();
+            _energyInventory = new EnergyInventory();
 
-            _timeServerHandler.OnEnergyAdded += OnEnergyAddedTimeServerHandler;
+            _energyInventory.OnEnergyIncreased += OnEnergyIncreasedHandler;
+            _energyInventory.OnEnergyDecreased += OnEnergyDecreasedHandler;
+
             _timeServerHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
 
             _timeServerHandler.CheckAmountAdded();
@@ -37,7 +54,8 @@ namespace EnergySuite
 
         void OnDisable()
         {
-            _timeServerHandler.OnEnergyAdded -= OnEnergyAddedTimeServerHandler;
+            _energyInventory.OnEnergyIncreased -= OnEnergyIncreasedHandler;
+            _energyInventory.OnEnergyDecreased -= OnEnergyDecreasedHandler;
             _timeServerHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
         }
 
@@ -49,6 +67,7 @@ namespace EnergySuite
         void OnDestroy()
         {
             _timeServerHandler.OnDestroy();
+            _energyInventory.OnDestroy();
         }
 
         void OnApplicationPause(bool pauseStatus)
@@ -58,9 +77,14 @@ namespace EnergySuite
 
         #region Event Handlers
 
-        void OnEnergyAddedTimeServerHandler(int amount)
+        void OnEnergyIncreasedHandler(int amount)
         {
-            OnEnergyAdded(amount);
+            OnEnergyChanged(amount);
+        }
+
+        void OnEnergyDecreasedHandler(int amount)
+        {
+            OnEnergyChanged(amount);
         }
 
         void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
@@ -72,10 +96,41 @@ namespace EnergySuite
 
         #region Public Methods
 
-        public void AddEnergy(int amount)
+        public void AddEnergy(int amount, DateTime? customDateTime = null)
         {
-            OnEnergyAdded(amount);
-            _timeServerHandler.SetLastTimeAdded();
+            _energyInventory.Add(amount);
+
+            if (customDateTime == null)
+                _timeServerHandler.SetLastTimeAdded();
+            else
+                _timeServerHandler.SetLastTimeAdded(customDateTime);
+
+            _timeServerHandler.CheckCanAddOne();
+        }
+
+        public bool UseEnergy(int amount)
+        {
+            return _energyInventory.Use(amount);
+        }
+
+        /// <summary>
+        /// Converts to slider value.
+        /// </summary>
+        /// <returns>The to slider value. 0 - 1</returns>
+        /// <param name="timeLeft">Time left to add one</param>
+        public float ConvertToSliderValue(TimeSpan timeLeft)
+        {
+            float result = 0f;
+
+            TimeSpan timeToAddEnergy = _timeServerHandler.GetTimeToAddEnergy();
+            long timeToAddDuration = timeToAddEnergy.Ticks;
+            long timeLeftDuration = timeLeft.Ticks;
+
+            long percent = (100 * timeLeftDuration) / timeToAddDuration;
+
+            result = percent / 100f;
+
+            return result;
         }
 
         #endregion
