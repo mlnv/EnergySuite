@@ -127,10 +127,6 @@ namespace EnergySuite
             return timeToAddEnergyMinutes.Add(timeToAddEnergySeconds);
         }
 
-        #endregion
-
-        #region Private Methods
-
         public void CheckCanAddOne()
         {
             if (_timeServer.GetTimeToNextAdd() > TimeSpan.Zero)
@@ -143,6 +139,10 @@ namespace EnergySuite
                 OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         #endregion
     }

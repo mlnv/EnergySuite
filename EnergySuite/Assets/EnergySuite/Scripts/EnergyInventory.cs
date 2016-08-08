@@ -49,7 +49,9 @@ namespace EnergySuite
             if (Amount + amount <= _maxAmount)
                 Amount += amount;
             else
+            {
                 Amount = _maxAmount;
+            }
 
             OnEnergyIncreased(Amount);
         }
@@ -63,6 +65,11 @@ namespace EnergySuite
 
             OnEnergyDecreased(Amount);
             return true;
+        }
+
+        public bool IsFull()
+        {
+            return Amount >= _maxAmount;
         }
 
         #endregion

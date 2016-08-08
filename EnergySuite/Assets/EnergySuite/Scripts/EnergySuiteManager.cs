@@ -1,11 +1,19 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using MonsterLove.StateMachine;
 
 namespace EnergySuite
 {
     public class EnergySuiteManager : Singleton<EnergySuiteManager>
     {
+        public enum State
+        {
+            Init,
+            Adding,
+            Full
+        }
+
         #region Public Vars
 
         public Action<int> OnEnergyChanged = delegate
@@ -28,6 +36,8 @@ namespace EnergySuite
             private set{ _amount = value; }
         }
 
+        public static StateMachine<State> StateMachine;
+
         #endregion
 
         #region Private Vars
@@ -41,15 +51,15 @@ namespace EnergySuite
         protected override void Awake()
         {
             base.Awake();
-            _timeServerHandler = new TimeServerHandler();
             _energyInventory = new EnergyInventory();
+            _timeServerHandler = new TimeServerHandler();
+            StateMachine = GetComponent<StateMachineRunner>().Initialize<State>(this);
+            StateMachine.ChangeState(State.Init);
 
             _energyInventory.OnEnergyIncreased += OnEnergyIncreasedHandler;
             _energyInventory.OnEnergyDecreased += OnEnergyDecreasedHandler;
 
             _timeServerHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
-
-            _timeServerHandler.CheckAmountAdded();
         }
 
         void OnDisable()
@@ -57,11 +67,6 @@ namespace EnergySuite
             _energyInventory.OnEnergyIncreased -= OnEnergyIncreasedHandler;
             _energyInventory.OnEnergyDecreased -= OnEnergyDecreasedHandler;
             _timeServerHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
-        }
-
-        void Update()
-        {
-            _timeServerHandler.Update();
         }
 
         void OnDestroy()
@@ -76,6 +81,51 @@ namespace EnergySuite
         }
 
         #region Event Handlers
+
+        void Init_Enter()
+        {
+            Debug.Log("InitEnter StateMachine: " + StateMachine);
+            _timeServerHandler.CheckAmountAdded();
+
+            if (_energyInventory.IsFull())
+                StateMachine.ChangeState(State.Full);
+            else 
+                StateMachine.ChangeState(State.Adding);
+        }
+
+        void Init_Exit()
+        {
+            Debug.Log("InitExit");
+        }
+
+        void Adding_Enter()
+        {
+            Debug.Log("AddingEnter");
+        }
+
+        void Adding_Update()
+        {
+            if (_energyInventory.IsFull())
+                StateMachine.ChangeState(State.Full);
+            else
+                _timeServerHandler.Update();
+        }
+
+        void Adding_Exit()
+        {
+            Debug.Log("AddingExit");
+        }
+
+        void Full_Enter()
+        {
+            Debug.Log("FullEnter");
+        }
+
+        void Full_Exit()
+        {
+            Debug.Log("FullExit");
+            //TODO save exit time
+        }
 
         void OnEnergyIncreasedHandler(int amount)
         {
@@ -107,10 +157,14 @@ namespace EnergySuite
                 else
                     _timeServerHandler.SetLastTimeAdded(customDateTime);
             }
+
+            if(_energyInventory.IsFull())
+                StateMachine.ChangeState(State.Full);
         }
 
         public bool UseEnergy(int amount)
         {
+            StateMachine.ChangeState(State.Adding);
             return _energyInventory.Use(amount);
         }
 
