@@ -84,23 +84,12 @@ namespace EnergySuite
 
         void Init_Enter()
         {
-            Debug.Log("InitEnter StateMachine: " + StateMachine);
             _timeServerHandler.CheckAmountAdded();
 
             if (_energyInventory.IsFull())
                 StateMachine.ChangeState(State.Full);
             else 
                 StateMachine.ChangeState(State.Adding);
-        }
-
-        void Init_Exit()
-        {
-            Debug.Log("InitExit");
-        }
-
-        void Adding_Enter()
-        {
-            Debug.Log("AddingEnter");
         }
 
         void Adding_Update()
@@ -111,20 +100,9 @@ namespace EnergySuite
                 _timeServerHandler.Update();
         }
 
-        void Adding_Exit()
-        {
-            Debug.Log("AddingExit");
-        }
-
-        void Full_Enter()
-        {
-            Debug.Log("FullEnter");
-        }
-
         void Full_Exit()
         {
-            Debug.Log("FullExit");
-            //TODO save exit time
+            _timeServerHandler.SetLastTimeAdded();
         }
 
         void OnEnergyIncreasedHandler(int amount)
