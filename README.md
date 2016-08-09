@@ -40,6 +40,11 @@ Manually use amount of energy (returns false if currentAmount < amountToUse):
 EnergySuiteManager.Use(amount);
 ```
 
+## TODO
+- [ ] Encrypted PlayerPrefs
+- [ ] Native iOS/Android time check
+- [ ] Simple handler solution for web server
+
 License
 -------
 
