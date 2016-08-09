@@ -72,12 +72,15 @@ namespace EnergySuite
         void OnDestroy()
         {
             _timeServerHandler.OnDestroy();
-            _energyInventory.OnDestroy();
+            _energyInventory.SaveAmount();
         }
 
         void OnApplicationPause(bool pauseStatus)
         {
             _timeServerHandler.OnApplicationPause(pauseStatus);
+
+            if (pauseStatus)
+                _energyInventory.SaveAmount();
         }
 
         #region Event Handlers

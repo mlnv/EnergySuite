@@ -33,11 +33,6 @@ namespace EnergySuite
             _maxAmount = EnergySuiteConfig.MaxAmount;
         }
 
-        public void OnDestroy()
-        {
-            SaveAmount(Amount);
-        }
-
         #region Event Handlers
 
         #endregion
@@ -72,14 +67,14 @@ namespace EnergySuite
             return Amount >= _maxAmount;
         }
 
+        public void SaveAmount()
+        {
+            PlayerPrefs.SetInt(AmountKey, Amount);
+        }
+
         #endregion
 
         #region Private Methods
-
-        void SaveAmount(int amount)
-        {
-            PlayerPrefs.SetInt(AmountKey, amount);
-        }
 
         int LoadAmount()
         {
