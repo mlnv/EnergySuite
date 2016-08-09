@@ -28,7 +28,6 @@ namespace EnergySuite
             EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
             AddEnergyButton.onClick.AddListener(OnAddEnergyButtonClicked);
             UseEnergyButton.onClick.AddListener(OnUseEnergyButtonClicked);
-            CurrentAmountText.text = EnergySuiteManager.Amount + "/" + EnergySuiteConfig.MaxAmount;
         }
 
         void OnDisable()
@@ -41,23 +40,24 @@ namespace EnergySuite
 
         void Start()
         {
+            CurrentAmountText.text = EnergySuiteManager.Amount + "/" + EnergySuiteManager.MaxAmount;
         }
 
         #region Event Handlers
 
         void OnAddEnergyButtonClicked()
         {
-            EnergySuiteBehaviour.Instance.AddEnergy(1, false);
+            EnergySuiteManager.Add(1);
         }
 
         void OnUseEnergyButtonClicked()
         {
-            EnergySuiteBehaviour.Instance.UseEnergy(1);
+            EnergySuiteManager.Use(1);
         }
 
         void OnEnergyAdded(int amount)
         {
-            CurrentAmountText.text = amount + "/" + EnergySuiteConfig.MaxAmount;
+            CurrentAmountText.text = amount + "/" + EnergySuiteManager.MaxAmount;
         }
 
         void OnTimeLeftChanged(TimeSpan timeLeft)

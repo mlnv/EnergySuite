@@ -71,6 +71,25 @@ namespace EnergySuite
         #region Public Methods
 
         /// <summary>
+        /// Add the specified amount of energy.
+        /// </summary>
+        /// <param name="amount">Amount.</param>
+        public static void Add(int amount)
+        {
+            EnergySuiteBehaviour.Instance.AddEnergy(amount, false);
+        }
+
+        /// <summary>
+        /// Use the specified amount of energy.
+        /// </summary>
+        /// <returns>True - succesfully, False - not enough energy to use.</returns>
+        /// <param name="amount">Amount.</param>
+        public static bool Use(int amount)
+        {
+            return EnergySuiteBehaviour.Instance.UseEnergy(amount);
+        }
+
+        /// <summary>
         /// Converts amlunt of energy to slider value.
         /// </summary>
         /// <returns>Slider value. 0 - 1</returns>
