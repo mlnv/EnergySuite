@@ -18,16 +18,19 @@ namespace EnergySuite
 
         const float _timeToCheck = 1f;
 
-        TimeServer _timeServer;
+        readonly TimeServer _timeServer;
+        readonly EnergySuiteBehaviour _energySuiteBehaviour;
+
         bool _fromPaused;
         bool _waitForCheck = true;
         float _timeToCheckTemp;
 
         #endregion
 
-        public TimeServerHandler()
+        public TimeServerHandler(EnergySuiteBehaviour energySuiteBehaviour)
         {
             _timeServer = new TimeServer();
+            _energySuiteBehaviour = energySuiteBehaviour;
         }
 
         public void Update()
@@ -114,7 +117,7 @@ namespace EnergySuite
 
             if (result > 0)
             {
-                EnergySuiteManager.Instance.AddEnergy(result, true, lastTimeAdded);
+                _energySuiteBehaviour.AddEnergy(result, true, lastTimeAdded);
             }
 
             _waitForCheck = false;
@@ -135,7 +138,7 @@ namespace EnergySuite
             }
             else
             {
-                EnergySuiteManager.Instance.AddEnergy(1, true);
+                _energySuiteBehaviour.AddEnergy(1);
                 OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
             }
         }

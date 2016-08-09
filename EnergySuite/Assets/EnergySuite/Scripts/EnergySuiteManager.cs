@@ -1,164 +1,85 @@
 ﻿using UnityEngine;
-using System;
 using System.Collections;
-using MonsterLove.StateMachine;
+using System;
 
 namespace EnergySuite
 {
-    public class EnergySuiteManager : Singleton<EnergySuiteManager>
+    public static class EnergySuiteManager
     {
-        public enum State
-        {
-            Init,
-            Adding,
-            Full
-        }
-
         #region Public Vars
 
-        public Action<int> OnEnergyChanged = delegate
+        /// <summary>
+        /// Amount of energy changed.
+        /// </summary>
+        public static Action<int> OnEnergyChanged = delegate
         {
         };
 
-        public Action<TimeSpan> OnTimeLeftChanged = delegate
+        /// <summary>
+        /// Time left to add 1 energy.
+        /// </summary>
+        public static Action<TimeSpan> OnTimeLeftChanged = delegate
         {
         };
 
-        public int Amount
+        /// <summary>
+        /// Gets the current amount of energy.
+        /// </summary>
+        /// <value>The amount.</value>
+        public static int Amount
         {
             get
             {
-                if (_energyInventory != null)
-                    return _energyInventory.Amount;
+                if (EnergySuiteBehaviour.EnergyInventory == null)
+                {
+                    EnergySuiteBehaviour.CreateInventoryInstance();
+                    return EnergySuiteBehaviour.EnergyInventory.Amount;
+                }
                 else
-                    return 0;
+                {
+                    return EnergySuiteBehaviour.EnergyInventory.Amount;
+                }
             }
-            private set{ _amount = value; }
         }
 
-        public static StateMachine<State> StateMachine;
+        /// <summary>
+        /// Gets the max amount of energy.
+        /// </summary>
+        /// <value>Max amount.</value>
+        public static int MaxAmount
+        {
+            get
+            { 
+                return EnergySuiteConfig.MaxAmount;
+            }
+            private set
+            { 
+                EnergySuiteConfig.MaxAmount = value;
+            }
+        }
 
         #endregion
 
         #region Private Vars
 
-        TimeServerHandler _timeServerHandler;
-        EnergyInventory _energyInventory;
-        int _amount;
-
         #endregion
 
-        protected override void Awake()
-        {
-            base.Awake();
-            _energyInventory = new EnergyInventory();
-            _timeServerHandler = new TimeServerHandler();
-            StateMachine = GetComponent<StateMachineRunner>().Initialize<State>(this);
-            StateMachine.ChangeState(State.Init);
-
-            _energyInventory.OnEnergyIncreased += OnEnergyIncreasedHandler;
-            _energyInventory.OnEnergyDecreased += OnEnergyDecreasedHandler;
-
-            _timeServerHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
-        }
-
-        void OnDisable()
-        {
-            _energyInventory.OnEnergyIncreased -= OnEnergyIncreasedHandler;
-            _energyInventory.OnEnergyDecreased -= OnEnergyDecreasedHandler;
-            _timeServerHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
-        }
-
-        void OnDestroy()
-        {
-            _timeServerHandler.OnDestroy();
-            _energyInventory.SaveAmount();
-        }
-
-        void OnApplicationPause(bool pauseStatus)
-        {
-            _timeServerHandler.OnApplicationPause(pauseStatus);
-
-            if (pauseStatus)
-                _energyInventory.SaveAmount();
-        }
-
         #region Event Handlers
-
-        void Init_Enter()
-        {
-            _timeServerHandler.CheckAmountAdded();
-
-            if (_energyInventory.IsFull())
-                StateMachine.ChangeState(State.Full);
-            else 
-                StateMachine.ChangeState(State.Adding);
-        }
-
-        void Adding_Update()
-        {
-            if (_energyInventory.IsFull())
-                StateMachine.ChangeState(State.Full);
-            else
-                _timeServerHandler.Update();
-        }
-
-        void Full_Exit()
-        {
-            _timeServerHandler.SetLastTimeAdded();
-        }
-
-        void OnEnergyIncreasedHandler(int amount)
-        {
-            OnEnergyChanged(amount);
-        }
-
-        void OnEnergyDecreasedHandler(int amount)
-        {
-            OnEnergyChanged(amount);
-        }
-
-        void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
-        {
-            OnTimeLeftChanged(timeLeft.Add(new TimeSpan(0, 0, 1)));
-        }
 
         #endregion
 
         #region Public Methods
 
-        public void AddEnergy(int amount, bool setTime = true, DateTime? customDateTime = null)
-        {
-            _energyInventory.Add(amount);
-
-            if (setTime)
-            {
-                if (customDateTime == null)
-                    _timeServerHandler.SetLastTimeAdded();
-                else
-                    _timeServerHandler.SetLastTimeAdded(customDateTime);
-            }
-
-            if(_energyInventory.IsFull())
-                StateMachine.ChangeState(State.Full);
-        }
-
-        public bool UseEnergy(int amount)
-        {
-            StateMachine.ChangeState(State.Adding);
-            return _energyInventory.Use(amount);
-        }
-
         /// <summary>
-        /// Converts to slider value.
+        /// Converts amlunt of energy to slider value.
         /// </summary>
-        /// <returns>The to slider value. 0 - 1</returns>
-        /// <param name="timeLeft">Time left to add one</param>
-        public float ConvertToSliderValue(TimeSpan timeLeft)
+        /// <returns>Slider value. 0 - 1</returns>
+        /// <param name="timeLeft">Time left to add one energy</param>
+        public static float ConvertToSliderValue(TimeSpan timeLeft)
         {
             float result = 0f;
 
-            TimeSpan timeToAddEnergy = _timeServerHandler.GetTimeToAddEnergy();
+            TimeSpan timeToAddEnergy = EnergySuiteBehaviour.TimeServerHandler.GetTimeToAddEnergy();
             long timeToAddDuration = timeToAddEnergy.Ticks;
             long timeLeftDuration = timeLeft.Ticks;
 

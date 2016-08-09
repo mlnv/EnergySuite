@@ -24,38 +24,35 @@ namespace EnergySuite
         void OnEnable()
         {
             Time.timeScale = 0;
-            EnergySuiteManager.Instance.OnEnergyChanged += OnEnergyAdded;
-            EnergySuiteManager.Instance.OnTimeLeftChanged += OnTimeLeftChanged;
+            EnergySuiteManager.OnEnergyChanged += OnEnergyAdded;
+            EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
             AddEnergyButton.onClick.AddListener(OnAddEnergyButtonClicked);
             UseEnergyButton.onClick.AddListener(OnUseEnergyButtonClicked);
+            CurrentAmountText.text = EnergySuiteManager.Amount + "/" + EnergySuiteConfig.MaxAmount;
         }
 
         void OnDisable()
         {
-            if (EnergySuiteManager.Instance != null)
-            {
-                EnergySuiteManager.Instance.OnEnergyChanged -= OnEnergyAdded;
-                EnergySuiteManager.Instance.OnTimeLeftChanged -= OnTimeLeftChanged;
-            }
+            EnergySuiteManager.OnEnergyChanged -= OnEnergyAdded;
+            EnergySuiteManager.OnTimeLeftChanged -= OnTimeLeftChanged;
             AddEnergyButton.onClick.RemoveListener(OnAddEnergyButtonClicked);
             UseEnergyButton.onClick.RemoveListener(OnUseEnergyButtonClicked);
         }
 
         void Start()
         {
-            CurrentAmountText.text = EnergySuiteManager.Instance.Amount + "/" + EnergySuiteConfig.MaxAmount;
         }
 
         #region Event Handlers
 
         void OnAddEnergyButtonClicked()
         {
-            EnergySuiteManager.Instance.AddEnergy(1, false);
+            EnergySuiteBehaviour.Instance.AddEnergy(1, false);
         }
 
         void OnUseEnergyButtonClicked()
         {
-            EnergySuiteManager.Instance.UseEnergy(1);
+            EnergySuiteBehaviour.Instance.UseEnergy(1);
         }
 
         void OnEnergyAdded(int amount)
@@ -68,7 +65,7 @@ namespace EnergySuite
             string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
             TimeLeftText.text = formatString;
 
-            TimeLeftSlider.value = EnergySuiteManager.Instance.ConvertToSliderValue(timeLeft);
+            TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
         }
 
         #endregion
