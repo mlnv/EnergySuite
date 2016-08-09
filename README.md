@@ -1,5 +1,45 @@
 # EnergySuite
 
+This is a simple reat-time enegry based system for your game. 
+
+## Installation
+
+* Apply last available unitypackage to your project
+* Place EnergySuiteBehaviour prefab on your first scene (it's DontDestroyOnLoad script)
+* PROFIT
+
+## Example Code
+
+Don't forget to add this at the top of the script:
+
+```
+using EnergySuite;
+```
+
+Get current energy amount:
+
+```
+EnergySuiteManager.Amount;
+```
+
+Get max energy amount:
+
+```
+EnergySuiteManager.MaxAmount;
+```
+
+Manually add amount of energy:
+
+```
+EnergySuiteManager.Add(amount);
+```
+
+Manually use amount of energy (returns false if currentAmount < amountToUse):
+
+```
+EnergySuiteManager.Use(amount);
+```
+
 License
 -------
 
