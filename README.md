@@ -1,6 +1,6 @@
 # EnergySuite
 
-This is a simple system for creating reat-time enegry based system for your game. 
+This is a simple reat-time enegry based system for your game. 
 
 ## Installation
 
