@@ -29,6 +29,7 @@ namespace EnergySuite
 
         public EnergyInventory()
         {
+            ZPlayerPrefs.Initialize(EnergySuiteConfig.Password, EnergySuiteConfig.PasswordSalt);
             Amount = LoadAmount();
             _maxAmount = EnergySuiteConfig.MaxAmount;
         }
@@ -69,7 +70,7 @@ namespace EnergySuite
 
         public void SaveAmount()
         {
-            PlayerPrefs.SetInt(AmountKey, Amount);
+            ZPlayerPrefs.SetInt(AmountKey, Amount);
         }
 
         #endregion
@@ -78,7 +79,7 @@ namespace EnergySuite
 
         int LoadAmount()
         {
-            return PlayerPrefs.GetInt(AmountKey, 0);
+            return ZPlayerPrefs.GetInt(AmountKey, 0);
         }
 
         #endregion

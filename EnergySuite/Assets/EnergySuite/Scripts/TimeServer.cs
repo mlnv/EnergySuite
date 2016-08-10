@@ -16,6 +16,11 @@ namespace EnergySuite
 
         #endregion
 
+        public TimeServer()
+        {
+            ZPlayerPrefs.Initialize(EnergySuiteConfig.Password, EnergySuiteConfig.PasswordSalt);
+        }
+
         #region Event Handlers
 
         #endregion
@@ -57,17 +62,17 @@ namespace EnergySuite
                 dt = (DateTime)dateTime;
             }
 
-            PlayerPrefs.SetString(LastTimeEnergyAddedKey, dt.ConvertToUnixTimestamp().ToString());
+            ZPlayerPrefs.SetString(LastTimeEnergyAddedKey, dt.ConvertToUnixTimestamp().ToString());
         }
 
         void SetLastClosedTimeHandle()
         {
-            PlayerPrefs.SetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
+            ZPlayerPrefs.SetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
         }
 
         DateTime GetLastClosedTimeHandle()
         {
-            string timeString = PlayerPrefs.GetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
+            string timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
             double unixTime = Convert.ToInt64(timeString);
             return new DateTime().ConvertFromUnixTimestamp(unixTime);
         }
@@ -81,10 +86,10 @@ namespace EnergySuite
 
         DateTime GetTimeFromLastAdded()
         {
-            if (!PlayerPrefs.HasKey(LastTimeEnergyAddedKey))
+            if (!ZPlayerPrefs.HasKey(LastTimeEnergyAddedKey))
                 SetTimeLastAddedHandle(null);
             
-            string timeString = PlayerPrefs.GetString(LastTimeEnergyAddedKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
+            string timeString = ZPlayerPrefs.GetString(LastTimeEnergyAddedKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
 
             double unixTime = Convert.ToInt64(timeString);
             return new DateTime().ConvertFromUnixTimestamp(unixTime);
