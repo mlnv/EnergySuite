@@ -1,6 +1,6 @@
 # EnergySuite
 
-This is a simple reat-time enegry based system for your game. 
+This is a simple real-time enegry based system for your game. 
 
 ## Installation
 
@@ -70,7 +70,7 @@ TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
 All examples you can find at Examples folder.
 
 ## TODO
-- [ ] Encrypted PlayerPrefs
+- [x] Encrypted PlayerPrefs
 - [ ] Native iOS/Android time check
 - [ ] Simple handler solution for web server
 
