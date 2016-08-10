@@ -40,6 +40,35 @@ Manually use amount of energy (returns false if currentAmount < amountToUse):
 EnergySuiteManager.Use(amount);
 ```
 
+Subscribe on energy amount changed action:
+
+```
+EnergySuiteManager.OnEnergyChanged += OnEnergyAdded;
+
+void OnEnergyAdded(int value){
+  // value - new amount of energy
+}
+```
+
+Subscribe on time left tick action (updated every sec if not full):
+
+```
+EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
+
+void OnTimeLeftChanged(TimeSpan timeLeft){
+  string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
+  TimeLeftText.text = formatString;
+}
+```
+
+Convert time left value to slider value (0-1 float):
+
+```
+TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
+```
+
+All examples you can find at Examples folder.
+
 ## TODO
 - [ ] Encrypted PlayerPrefs
 - [ ] Native iOS/Android time check
