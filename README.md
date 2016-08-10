@@ -1,6 +1,6 @@
 # EnergySuite
 
-This is a simple real-time enegry based system for your game. 
+This is a simple real-time enegry based system for your Unity3d game. 
 
 ## Installation
 
@@ -67,7 +67,7 @@ Convert time left value to slider value (0-1 float):
 TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
 ```
 
-All examples you can find at Examples folder.
+All examples you can find at Example folder.
 
 ## TODO
 - [x] Encrypted PlayerPrefs
