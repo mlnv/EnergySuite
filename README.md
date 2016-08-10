@@ -4,7 +4,7 @@ This is a simple real-time enegry based system for your Unity3d game.
 
 ## Installation
 
-* Apply last available unitypackage to your project
+* Apply last available [unitypackage](https://github.com/mlnv/EnergySuite/raw/master/EnergySuite/Builds/EnegrySuite.unitypackage) to your project
 * Place EnergySuiteBehaviour prefab on your first scene (it's DontDestroyOnLoad script)
 * PROFIT
 
