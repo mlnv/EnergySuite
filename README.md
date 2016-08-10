@@ -1,5 +1,7 @@
 # EnergySuite
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://opensource.org/licenses/mit-license.php)
+
 This is a simple real-time enegry based system for your Unity3d game. 
 
 ## Installation
@@ -82,8 +84,18 @@ All examples you can find at Example folder.
 
 This asset use [Secured PlayerPrefs](https://www.assetstore.unity3d.com/en/#!/content/32357) and [FSM](https://github.com/thefuntastic/Unity3d-Finite-State-Machine), so if you already have one of this asset in your project - just delete one copy of it.
 
+Developed By
+-------
+Maksym Yemelianov
+
+<a href="https://twitter.com/makmlnv">
+<img alt="Follow me on Twitter"
+src="http://i.imgur.com/Y6YCiG3.png" width="50"/>
+</a>
+
 License
 -------
+The MIT License (MIT)
 
 Copyright (C) 2016 Maksym Yemelianov
 
