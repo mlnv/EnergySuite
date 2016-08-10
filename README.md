@@ -45,8 +45,8 @@ Subscribe on energy amount changed action:
 ```
 EnergySuiteManager.OnEnergyChanged += OnEnergyAdded;
 
-void OnEnergyAdded(int value){
-  // value - new amount of energy
+void OnEnergyAdded(int amount){
+  CurrentAmountText.text = amount + "/" + EnergySuiteManager.MaxAmount;
 }
 ```
 
