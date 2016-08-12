@@ -76,8 +76,9 @@ All examples you can find at Example folder.
 
 ## TODO
 - [x] Encrypted PlayerPrefs
-- [ ] Native iOS/Android time check
+- [x] Native iOS/Android time check
 - [ ] Simple handler solution for web server
+- [ ] Make system handle many simultaneous timers
 - [ ] Native iOS/Android notification system
 
 ## Dependencies
