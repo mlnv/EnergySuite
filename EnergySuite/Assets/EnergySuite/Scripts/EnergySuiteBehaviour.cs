@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using MonsterLove.StateMachine;
 
 namespace EnergySuite
@@ -16,8 +15,10 @@ namespace EnergySuite
 
         #region Public Vars
 
-        public static TimeServerHandler TimeServerHandler;
+        public static TimeServerHandler TimeServHandler;
         public static EnergyInventory EnergyInventory;
+
+        public static long CurrentTimeSec;
 
         #endregion
 
@@ -38,17 +39,19 @@ namespace EnergySuite
         protected override void Awake()
         {
             base.Awake();
+            EnergySuiteBehaviour.UpdateCurrentTime();
+
             if (EnergyInventory == null)
                 CreateInventoryInstance();
-            
-            TimeServerHandler = new TimeServerHandler(this);
+
+            TimeServHandler = new TimeServerHandler(this);
             _stateMachine = GetComponent<StateMachineRunner>().Initialize<State>(this);
             _stateMachine.ChangeState(State.Init);
 
             EnergyInventory.OnEnergyIncreased += OnEnergyIncreasedHandler;
             EnergyInventory.OnEnergyDecreased += OnEnergyDecreasedHandler;
 
-            TimeServerHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
+            TimeServHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
 
             OnEnergyChanged += OnEnergyChangedHandler;
             OnTimeLeftChanged += OnTimeLeftChangedHandler;
@@ -58,20 +61,20 @@ namespace EnergySuite
         {
             EnergyInventory.OnEnergyIncreased -= OnEnergyIncreasedHandler;
             EnergyInventory.OnEnergyDecreased -= OnEnergyDecreasedHandler;
-            TimeServerHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
+            TimeServHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
             OnEnergyChanged -= OnEnergyChangedHandler;
             OnTimeLeftChanged -= OnTimeLeftChangedHandler;
         }
 
         void OnDestroy()
         {
-            TimeServerHandler.OnDestroy();
+            TimeServHandler.OnDestroy();
             EnergyInventory.SaveAmount();
         }
 
         void OnApplicationPause(bool pauseStatus)
         {
-            TimeServerHandler.OnApplicationPause(pauseStatus);
+            TimeServHandler.OnApplicationPause(pauseStatus);
 
             if (pauseStatus)
                 EnergyInventory.SaveAmount();
@@ -81,7 +84,10 @@ namespace EnergySuite
 
         void Init_Enter()
         {
-            TimeServerHandler.CheckAmountAdded();
+            if (CurrentTimeSec > TimeServHandler.TimeServ.GetLastClosedTime())
+                TimeServHandler.CheckAmountAdded();
+            else
+                TimeServHandler.CheckAmountAdded(0);
 
             if (EnergyInventory.IsFull())
                 _stateMachine.ChangeState(State.Full);
@@ -94,12 +100,12 @@ namespace EnergySuite
             if (EnergyInventory.IsFull())
                 _stateMachine.ChangeState(State.Full);
             else
-                TimeServerHandler.Update();
+                TimeServHandler.Update();
         }
 
         void Full_Exit()
         {
-            TimeServerHandler.SetLastTimeAdded();
+            TimeServHandler.SetLastTimeAdded();
         }
 
         void OnEnergyIncreasedHandler(int amount)
@@ -131,16 +137,16 @@ namespace EnergySuite
 
         #region Public Methods
 
-        public void AddEnergy(int amount, bool setTime = true, DateTime? customDateTime = null)
+        public void AddEnergy(int amount, bool setTime = true, long customTime = -1)
         {
             EnergyInventory.Add(amount);
 
             if (setTime)
             {
-                if (customDateTime == null)
-                    TimeServerHandler.SetLastTimeAdded();
+                if (customTime == -1)
+                    TimeServHandler.SetLastTimeAdded();
                 else
-                    TimeServerHandler.SetLastTimeAdded(customDateTime);
+                    TimeServHandler.SetLastTimeAdded(customTime);
             }
 
             if (EnergyInventory.IsFull())
@@ -156,6 +162,32 @@ namespace EnergySuite
         public static void CreateInventoryInstance()
         {
             EnergyInventory = new EnergyInventory();
+        }
+
+        public static void UpdateCurrentTime()
+        {
+            #if UNITY_IOS && !UNITY_EDITOR
+            iOSBridge.GetCurrentMediaTime();
+            #elif UNITY_ANDROID && !UNITY_EDITOR
+            AndroidJavaObject jo = new AndroidJavaObject("android.os.SystemClock");
+            long time = jo.CallStatic<long>("elapsedRealtime"); 
+            long timeSec = time/1000;
+            CallbackGetTimeStatic(timeSec.ToString());
+            #elif UNITY_STANDALONE || UNITY_EDITOR
+            int time = Environment.TickCount;
+            int timeSec = time / 1000;
+            CallbackGetTimeStatic(timeSec.ToString());
+            #endif
+        }
+
+        public static void CallbackGetTimeStatic(string value)
+        {
+            CurrentTimeSec = (long)Convert.ToDouble(value);
+        }
+
+        public void CallbackGetTime(string value)
+        {
+            EnergySuiteBehaviour.CallbackGetTimeStatic(value);
         }
 
         #endregion

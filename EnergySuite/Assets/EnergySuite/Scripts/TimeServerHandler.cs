@@ -16,9 +16,9 @@ namespace EnergySuite
 
         #region Private Vars
 
-        const float _timeToCheck = 1f;
+        const float _timeToCheck = 0.5f;
 
-        readonly TimeServer _timeServer;
+        public readonly TimeServer TimeServ;
         readonly EnergySuiteBehaviour _energySuiteBehaviour;
 
         bool _fromPaused;
@@ -29,7 +29,7 @@ namespace EnergySuite
 
         public TimeServerHandler(EnergySuiteBehaviour energySuiteBehaviour)
         {
-            _timeServer = new TimeServer();
+            TimeServ = new TimeServer();
             _energySuiteBehaviour = energySuiteBehaviour;
         }
 
@@ -53,7 +53,7 @@ namespace EnergySuite
         {
             if (pauseStatus)
             {
-                _timeServer.SetLastClosedTime();
+                TimeServ.SetLastClosedTime();
                 _fromPaused = true;
             }
             else if (_fromPaused)
@@ -65,7 +65,7 @@ namespace EnergySuite
 
         public void OnDestroy()
         {
-            _timeServer.SetLastClosedTime();
+            TimeServ.SetLastClosedTime();
             _fromPaused = false;
             _waitForCheck = true;
         }
@@ -76,26 +76,29 @@ namespace EnergySuite
 
         #region Public Methods
 
-        public void SetLastTimeAdded(DateTime? customDateTime = null)
+        public void SetLastTimeAdded(long time = -1)
         {
-            if (customDateTime == null)
-                _timeServer.SetTimeLastAdded();
+            if (time == -1)
+                TimeServ.SetTimeLastAdded();
             else
-                _timeServer.SetTimeLastAdded(customDateTime);
+                TimeServ.SetTimeLastAdded(time);
         }
 
-        public void CheckAmountAdded()
+        public void CheckAmountAdded(long lastClosedTime = -1)
         {
             int result = 0;
 
-            DateTime lastClosedTime = _timeServer.GetLastClosedTime();
-            TimeSpan timeLeftToAddEnergy = _timeServer.GetTimeToNextAdd();
+            if (lastClosedTime == -1)
+                lastClosedTime = TimeServ.GetLastClosedTime();
+
+            TimeSpan timeLeftToAddEnergy = TimeServ.GetTimeToNextAdd();
             TimeSpan timeToAddEnergy = GetTimeToAddEnergy();
 
-            DateTime lastTimeAdded = DateTime.Now;
-            DateTime timeAddedEnergy = lastClosedTime.Add(timeLeftToAddEnergy);
+            long lastTimeAdded;
 
-            if (timeAddedEnergy > DateTime.Now)
+            long timeAddedEnergy = lastClosedTime + timeLeftToAddEnergy.Seconds;
+
+            if (timeAddedEnergy > EnergySuiteBehaviour.CurrentTimeSec)
             {
                 _waitForCheck = false;
                 return;
@@ -106,9 +109,9 @@ namespace EnergySuite
 
             while (true)
             {
-                DateTime newLastTimeAdded = lastTimeAdded.Add(timeToAddEnergy);
+                long newLastTimeAdded = lastTimeAdded + timeToAddEnergy.Seconds;
 
-                if (newLastTimeAdded > DateTime.Now)
+                if (newLastTimeAdded > EnergySuiteBehaviour.CurrentTimeSec)
                     break;
 
                 result++;
@@ -132,14 +135,16 @@ namespace EnergySuite
 
         public void CheckCanAddOne()
         {
-            if (_timeServer.GetTimeToNextAdd() > TimeSpan.Zero)
+            EnergySuiteBehaviour.UpdateCurrentTime();
+
+            if (TimeServ.GetTimeToNextAdd() >= TimeSpan.Zero)
             {
-                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
+                OnTimeLeftChanged(TimeServ.GetTimeToNextAdd());
             }
             else
             {
                 _energySuiteBehaviour.AddEnergy(1);
-                OnTimeLeftChanged(_timeServer.GetTimeToNextAdd());
+                OnTimeLeftChanged(TimeServ.GetTimeToNextAdd());
             }
         }
 

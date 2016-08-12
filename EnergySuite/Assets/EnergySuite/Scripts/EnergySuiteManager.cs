@@ -98,7 +98,7 @@ namespace EnergySuite
         {
             float result = 0f;
 
-            TimeSpan timeToAddEnergy = EnergySuiteBehaviour.TimeServerHandler.GetTimeToAddEnergy();
+            TimeSpan timeToAddEnergy = EnergySuiteBehaviour.TimeServHandler.GetTimeToAddEnergy();
             long timeToAddDuration = timeToAddEnergy.Ticks;
             long timeLeftDuration = timeLeft.Ticks;
 

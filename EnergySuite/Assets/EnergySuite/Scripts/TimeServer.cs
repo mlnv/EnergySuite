@@ -27,9 +27,9 @@ namespace EnergySuite
 
         #region Public Methods
 
-        public void SetTimeLastAdded(DateTime? dateTime = null)
+        public void SetTimeLastAdded(long time = -1)
         {
-            SetTimeLastAddedHandle(dateTime);
+            SetTimeLastAddedHandle(time);
         }
 
         public TimeSpan GetTimeToNextAdd()
@@ -42,7 +42,7 @@ namespace EnergySuite
             SetLastClosedTimeHandle();
         }
 
-        public DateTime GetLastClosedTime()
+        public long GetLastClosedTime()
         {
             return GetLastClosedTimeHandle();
         }
@@ -51,48 +51,44 @@ namespace EnergySuite
 
         #region Private Methods
 
-        void SetTimeLastAddedHandle(DateTime? dateTime)
+        void SetTimeLastAddedHandle(long time = -1)
         {
-            DateTime dt;
+            long timeToSave;
 
-            if (dateTime == null)
-                dt = DateTime.Now;
+            if (time == -1)
+                timeToSave = EnergySuiteBehaviour.CurrentTimeSec;
             else
-            {
-                dt = (DateTime)dateTime;
-            }
+                timeToSave = time;
 
-            ZPlayerPrefs.SetString(LastTimeEnergyAddedKey, dt.ConvertToUnixTimestamp().ToString());
+            ZPlayerPrefs.SetString(LastTimeEnergyAddedKey, timeToSave.ToString());
         }
 
         void SetLastClosedTimeHandle()
         {
-            ZPlayerPrefs.SetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
+            ZPlayerPrefs.SetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
         }
 
-        DateTime GetLastClosedTimeHandle()
+        long GetLastClosedTimeHandle()
         {
-            string timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
-            double unixTime = Convert.ToInt64(timeString);
-            return new DateTime().ConvertFromUnixTimestamp(unixTime);
+            string timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
+            return (long)Convert.ToDouble(timeString);
         }
 
         TimeSpan GetTimeLeft()
         {
-            DateTime timeToAddEnergy = GetTimeFromLastAdded().AddMinutes(EnergySuiteConfig.TimeToReloadMinutes).AddSeconds(EnergySuiteConfig.TimeToReloadSeconds);
-            TimeSpan result = timeToAddEnergy.Subtract(DateTime.Now);
-            return result;
+            long timeToAddEnergy = GetTimeFromLastAdded() + EnergySuiteConfig.TimeToReloadMinutes * 60 + EnergySuiteConfig.TimeToReloadSeconds;
+            int seconds = (int)(timeToAddEnergy - EnergySuiteBehaviour.CurrentTimeSec);
+            return new TimeSpan(0,0, seconds);
         }
 
-        DateTime GetTimeFromLastAdded()
+        long GetTimeFromLastAdded()
         {
             if (!ZPlayerPrefs.HasKey(LastTimeEnergyAddedKey))
-                SetTimeLastAddedHandle(null);
+                SetTimeLastAddedHandle();
             
-            string timeString = ZPlayerPrefs.GetString(LastTimeEnergyAddedKey, DateTime.Now.ConvertToUnixTimestamp().ToString());
+            string timeString = ZPlayerPrefs.GetString(LastTimeEnergyAddedKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
 
-            double unixTime = Convert.ToInt64(timeString);
-            return new DateTime().ConvertFromUnixTimestamp(unixTime);
+            return (long)Convert.ToDouble(timeString);
         }
 
         #endregion
