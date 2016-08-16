@@ -1,7 +1,5 @@
 # EnergySuite
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://opensource.org/licenses/mit-license.php)
-
 This is a simple real-time enegry based system for your Unity3d game. 
 
 ## Installation
@@ -9,6 +7,8 @@ This is a simple real-time enegry based system for your Unity3d game.
 * Apply last available [unitypackage](https://github.com/mlnv/EnergySuite/raw/master/EnergySuite/Builds/EnegrySuite.unitypackage) to your project
 * Place EnergySuiteBehaviour prefab on your first scene (it's DontDestroyOnLoad script)
 * Edit ***Password*** and ***PasswordSalt*** fields in _EnergySuiteConfig.cs_
+* Add your time values to **TimeValue** enum
+* Place you time values to **StoredInfo** field in _EnergySuiteConfig.cs_
 * PROFIT
 
 ## Example Code
@@ -19,38 +19,50 @@ This is a simple real-time enegry based system for your Unity3d game.
 using EnergySuite;
 ```
 
-#### Get current energy amount:
+#### Get current time value amount:
 
 ```csharp
-EnergySuiteManager.Amount;
+EnergySuiteManager.GetAmount(timeValueType)
 ```
 
-#### Get max energy amount:
+#### Get max time value amount:
 
 ```csharp
-EnergySuiteManager.MaxAmount;
+EnergySuiteManager.GetMaxAmount(timeValueType)
 ```
 
-#### Manually add amount of energy:
+#### Manually add amount of time value:
 
 ```csharp
-EnergySuiteManager.Add(amount);
+EnergySuiteManager.Add(timeValueType, amount);
 ```
 
-#### Manually use amount of energy:
+#### Manually use amount of time value:
 (returns false if currentAmount < amountToUse)
 
 ```csharp
-EnergySuiteManager.Use(amount);
+EnergySuiteManager.Use(timeValueType, amount);
 ```
 
-#### Subscribe on energy amount changed action:
+#### Subscribe on time value amount changed action:
 
 ```csharp
-EnergySuiteManager.OnEnergyChanged += OnEnergyAdded;
+EnergySuiteManager.OnAmountChanged += OnAmountChanged;
 
-void OnEnergyAdded(int amount){
-  CurrentAmountText.text = amount + "/" + EnergySuiteManager.MaxAmount;
+void OnAmountChanged(int amount, TimeBasedValue timeBasedValue) {
+
+  string text = amount + "/" + timeBasedValue.MaxAmount;
+  
+  switch (timeBasedValue.Type) {
+	  case TimeValue.Life:
+		  CurrentLifeAmountText.text = text;
+			break;
+		case TimeValue.Key:
+		  CurrentKeyAmountText.text = text;
+			break;
+		default:
+			break;
+	}
 }
 ```
 
@@ -60,16 +72,30 @@ void OnEnergyAdded(int amount){
 ```csharp
 EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
 
-void OnTimeLeftChanged(TimeSpan timeLeft){
+void OnTimeLeftChanged(TimeSpan timeLeft, TimeBasedValue timeBasedValue) {
+
   string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
-  TimeLeftText.text = formatString;
+	float sliderValue = EnergySuiteManager.ConvertToSliderValue(timeLeft, timeBasedValue);
+  
+  switch (timeBasedValue.Type) {
+	  case TimeValue.Life:
+		  LifeTimeLeftText.text = formatString;
+			LifeTimeLeftSlider.value = sliderValue;
+		  break;
+		case TimeValue.Key:
+		  KeyTimeLeftText.text = formatString;
+			KeyTimeLeftSlider.value = sliderValue;
+			break;
+		default:
+			break;
+	}
 }
 ```
 
 #### Convert time left value to slider value:
 
 ```csharp
-TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
+TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft, timeBasedValue);
 ```
 
 All examples you can find at Example folder.
@@ -77,13 +103,13 @@ All examples you can find at Example folder.
 ## TODO
 - [x] Encrypted PlayerPrefs
 - [x] Native iOS/Android time check
+- [x] Make system handle many simultaneous timers
 - [ ] Simple handler solution for web server
-- [ ] Make system handle many simultaneous timers
 - [ ] Native iOS/Android notification system
 
 ## Dependencies
 
-This asset use [Secured PlayerPrefs](https://www.assetstore.unity3d.com/en/#!/content/32357) and [FSM](https://github.com/thefuntastic/Unity3d-Finite-State-Machine), so if you already have one of this asset in your project - just delete one copy of it.
+This asset use [Secured PlayerPrefs](https://www.assetstore.unity3d.com/en/#!/content/32357) and [StateKit](https://github.com/prime31/StateKit), so if you already have one of this asset in your project - just delete one copy of it.
 
 Developed By
 -------
@@ -96,23 +122,4 @@ src="http://i.imgur.com/Y6YCiG3.png" width="50"/>
 
 License
 -------
-The MIT License (MIT)
-
-Copyright (C) 2016 Maksym Yemelianov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+[Attribution-NonCommercial-ShareAlike 3.0 Unported](http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode) with [simple explanation](http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US) with the attribution clause waived. You are free to use StateKit in any and all games that you make. You cannot sell StateKit directly or as part of a larger game asset.
