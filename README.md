@@ -2,6 +2,9 @@
 
 This is a simple real-time enegry based system for your Unity3d game. 
 
+<img alt="Follow me on Twitter"
+src="http://i.imgur.com/fT7ZJTB.png" width="250"/>
+
 ## Installation
 
 * Apply last available [unitypackage](https://github.com/mlnv/EnergySuite/raw/master/EnergySuite/Builds/EnegrySuite.unitypackage) to your project
