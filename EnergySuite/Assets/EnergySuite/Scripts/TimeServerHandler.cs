@@ -4,154 +4,141 @@ using System;
 
 namespace EnergySuite
 {
-    public class TimeServerHandler
-    {
-        #region Public Vars
+	public class TimeServerHandler
+	{
+		#region Public Vars
 
-        public Action<TimeSpan> OnTimeLeftChanged = delegate
-        {
-        };
+		#endregion
 
-        #endregion
+		#region Private Vars
 
-        #region Private Vars
+		const float _timeToCheck = 1f;
 
-        const float _timeToCheck = 0.5f;
+		readonly EnergySuiteValueBehaviour _energySuiteValueBehaviour;
+		readonly TimeBasedValue _timeBasedValue;
 
-        public readonly TimeServer TimeServ;
-        readonly EnergySuiteBehaviour _energySuiteBehaviour;
+		bool _fromPaused;
+		bool _waitForCheck = true;
+		float _timeToCheckTemp;
 
-        bool _fromPaused;
-        bool _waitForCheck = true;
-        float _timeToCheckTemp;
+		#endregion
 
-        #endregion
+		public TimeServerHandler(EnergySuiteValueBehaviour energySuiteValueBehaviour, TimeBasedValue timeBasedValue)
+		{
+			_timeBasedValue = timeBasedValue;
+			_energySuiteValueBehaviour = energySuiteValueBehaviour;
+		}
 
-        public TimeServerHandler(EnergySuiteBehaviour energySuiteBehaviour)
-        {
-            TimeServ = new TimeServer();
-            _energySuiteBehaviour = energySuiteBehaviour;
-        }
+		public void Update()
+		{
+			if (_waitForCheck)
+				return;
 
-        public void Update()
-        {
-            if (_waitForCheck)
-                return;
+			if (_timeToCheckTemp > 0f)
+			{
+				_timeToCheckTemp -= Time.unscaledDeltaTime;
+			}
+			else
+			{
+				_timeToCheckTemp = _timeToCheck;
+				CheckCanAddOne();
+			}
+		}
 
-            if (_timeToCheckTemp > 0f)
-            {
-                _timeToCheckTemp -= Time.unscaledDeltaTime;
-            }
-            else
-            {
-                _timeToCheckTemp = _timeToCheck;
-                CheckCanAddOne();
-            }
-        }
+		public void OnApplicationPause(bool pauseStatus)
+		{
+			if (pauseStatus)
+			{
+				EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
+				_fromPaused = true;
+			}
+			else if (_fromPaused)
+			{
+				_fromPaused = false;
+				CheckAmountAdded();
+			}
+		}
 
-        public void OnApplicationPause(bool pauseStatus)
-        {
-            if (pauseStatus)
-            {
-                TimeServ.SetLastClosedTime();
-                _fromPaused = true;
-            }
-            else if (_fromPaused)
-            {
-                _fromPaused = false;
-                CheckAmountAdded();
-            }
-        }
+		public void OnDestroy()
+		{
+			EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
+			_fromPaused = false;
+			_waitForCheck = true;
+		}
 
-        public void OnDestroy()
-        {
-            TimeServ.SetLastClosedTime();
-            _fromPaused = false;
-            _waitForCheck = true;
-        }
+		#region Event Handlers
 
-        #region Event Handlers
+		#endregion
 
-        #endregion
+		#region Public Methods
 
-        #region Public Methods
+		public void SetLastTimeAdded(long time = -1)
+		{
+			if (time == -1)
+				_timeBasedValue.SetTimeLastAdded();
+			else
+				_timeBasedValue.SetTimeLastAdded(time);
+		}
 
-        public void SetLastTimeAdded(long time = -1)
-        {
-            if (time == -1)
-                TimeServ.SetTimeLastAdded();
-            else
-                TimeServ.SetTimeLastAdded(time);
-        }
+		public void CheckAmountAdded(long lastClosedTime = -1)
+		{
+			int result = 0;
 
-        public void CheckAmountAdded(long lastClosedTime = -1)
-        {
-            int result = 0;
+			if (lastClosedTime == -1)
+				lastClosedTime = EnergySuiteBehaviour.TimeServ.GetLastClosedTime();
 
-            if (lastClosedTime == -1)
-                lastClosedTime = TimeServ.GetLastClosedTime();
+			TimeSpan timeLeftToAddEnergy = _timeBasedValue.GetTimeToNextAdd(lastClosedTime);
+			long totalTimeToAddEnergy = _timeBasedValue.GetTimeToAddEnergy();
 
-            TimeSpan timeLeftToAddEnergy = TimeServ.GetTimeToNextAdd();
-            TimeSpan timeToAddEnergy = GetTimeToAddEnergy();
+			long lastTimeAdded;
 
-            long lastTimeAdded;
+			long timeAddedEnergy = lastClosedTime + (long)timeLeftToAddEnergy.TotalSeconds;
 
-            long timeAddedEnergy = lastClosedTime + timeLeftToAddEnergy.Seconds;
+			if (timeAddedEnergy > EnergySuiteBehaviour.CurrentTimeSec)
+			{
+				_waitForCheck = false;
+				return;
+			}
 
-            if (timeAddedEnergy > EnergySuiteBehaviour.CurrentTimeSec)
-            {
-                _waitForCheck = false;
-                return;
-            }
+			result++;
+			lastTimeAdded = timeAddedEnergy;
 
-            result++;
-            lastTimeAdded = timeAddedEnergy;
+			while (true)
+			{
+				long newLastTimeAdded = lastTimeAdded + totalTimeToAddEnergy;
 
-            while (true)
-            {
-                long newLastTimeAdded = lastTimeAdded + timeToAddEnergy.Seconds;
+				if (newLastTimeAdded > EnergySuiteBehaviour.CurrentTimeSec)
+					break;
 
-                if (newLastTimeAdded > EnergySuiteBehaviour.CurrentTimeSec)
-                    break;
+				result++;
+				lastTimeAdded = newLastTimeAdded;
+			}
 
-                result++;
-                lastTimeAdded = newLastTimeAdded;
-            }
+			if (result > 0)
+			{
+				_energySuiteValueBehaviour.Add(result, true, lastTimeAdded);
+			}
 
-            if (result > 0)
-            {
-                _energySuiteBehaviour.AddEnergy(result, true, lastTimeAdded);
-            }
+			_waitForCheck = false;
+		}
 
-            _waitForCheck = false;
-        }
+		public void CheckCanAddOne()
+		{
+			if (_timeBasedValue.GetTimeToNextAdd() >= TimeSpan.Zero)
+			{
+				EnergySuiteManager.OnTimeLeftChanged(_timeBasedValue.GetTimeToNextAdd(), _timeBasedValue);
+			}
+			else
+			{
+				_energySuiteValueBehaviour.Add(1);
+				EnergySuiteManager.OnTimeLeftChanged(_timeBasedValue.GetTimeToNextAdd(), _timeBasedValue);
+			}
+		}
 
-        public TimeSpan GetTimeToAddEnergy()
-        {
-            TimeSpan timeToAddEnergyMinutes = TimeSpan.FromMinutes(EnergySuiteConfig.TimeToReloadMinutes);
-            TimeSpan timeToAddEnergySeconds = TimeSpan.FromSeconds(EnergySuiteConfig.TimeToReloadSeconds);
-            return timeToAddEnergyMinutes.Add(timeToAddEnergySeconds);
-        }
+		#endregion
 
-        public void CheckCanAddOne()
-        {
-            EnergySuiteBehaviour.UpdateCurrentTime();
+		#region Private Methods
 
-            if (TimeServ.GetTimeToNextAdd() >= TimeSpan.Zero)
-            {
-                OnTimeLeftChanged(TimeServ.GetTimeToNextAdd());
-            }
-            else
-            {
-                _energySuiteBehaviour.AddEnergy(1);
-                OnTimeLeftChanged(TimeServ.GetTimeToNextAdd());
-            }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        #endregion
-    }
+		#endregion
+	}
 }

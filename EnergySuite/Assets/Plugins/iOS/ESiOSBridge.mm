@@ -6,7 +6,7 @@
 //  Copyright © 2016 Mlnv. All rights reserved.
 //
 
-#import "iOSBridge.h"
+#import "ESiOSBridge.h"
 #include <sys/sysctl.h>
 
 @implementation iOSBridge

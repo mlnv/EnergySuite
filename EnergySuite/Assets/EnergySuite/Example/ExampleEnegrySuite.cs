@@ -7,13 +7,18 @@ namespace EnergySuite
 {
     public class ExampleEnegrySuite : MonoBehaviour
     {
-        #region Public Vars
+		#region Public Vars
 
-        public Text CurrentAmountText;
-        public Text TimeLeftText;
-        public Slider TimeLeftSlider;
-        public Button AddEnergyButton;
-        public Button UseEnergyButton;
+		public Text CurrentKeyAmountText;
+		public Text CurrentLifeAmountText;
+		public Text KeyTimeLeftText;
+		public Text LifeTimeLeftText;
+		public Slider KeyTimeLeftSlider;
+		public Slider LifeTimeLeftSlider;
+		public Button AddKeyButton;
+		public Button UseKeyButton;
+		public Button AddLifeButton;
+		public Button UseLifeButton;
 
         #endregion
 
@@ -23,49 +28,90 @@ namespace EnergySuite
 
         void OnEnable()
         {
+			//Example
             Time.timeScale = 0;
-            EnergySuiteManager.OnEnergyChanged += OnEnergyAdded;
-            EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
-            AddEnergyButton.onClick.AddListener(OnAddEnergyButtonClicked);
-            UseEnergyButton.onClick.AddListener(OnUseEnergyButtonClicked);
+
+			EnergySuiteManager.OnAmountChanged += OnAmountChanged;
+			EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
+			AddKeyButton.onClick.AddListener(AddKeyButtonClicked);
+			UseKeyButton.onClick.AddListener(UseKeyButtonClicked);
+			AddLifeButton.onClick.AddListener(AddLifeButtonClicked);
+			UseLifeButton.onClick.AddListener(UseLifeButtonClicked);
         }
 
         void OnDisable()
         {
-            EnergySuiteManager.OnEnergyChanged -= OnEnergyAdded;
-            EnergySuiteManager.OnTimeLeftChanged -= OnTimeLeftChanged;
-            AddEnergyButton.onClick.RemoveListener(OnAddEnergyButtonClicked);
-            UseEnergyButton.onClick.RemoveListener(OnUseEnergyButtonClicked);
+			EnergySuiteManager.OnAmountChanged -= OnAmountChanged;
+			EnergySuiteManager.OnTimeLeftChanged -= OnTimeLeftChanged;
+            AddKeyButton.onClick.RemoveListener(AddKeyButtonClicked);
+            UseKeyButton.onClick.RemoveListener(UseKeyButtonClicked);
+			AddLifeButton.onClick.RemoveListener(AddLifeButtonClicked);
+			UseLifeButton.onClick.RemoveListener(UseLifeButtonClicked);
         }
 
         void Start()
         {
-            CurrentAmountText.text = EnergySuiteManager.Amount + "/" + EnergySuiteManager.MaxAmount;
+			CurrentLifeAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Life) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Life);
+			CurrentKeyAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Key) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Key);
         }
 
         #region Event Handlers
 
-        void OnAddEnergyButtonClicked()
+        void AddKeyButtonClicked()
         {
-            EnergySuiteManager.Add(1);
+			EnergySuiteManager.Add(TimeValue.Key, 1);
         }
 
-        void OnUseEnergyButtonClicked()
+        void UseKeyButtonClicked()
         {
-            EnergySuiteManager.Use(1);
+			EnergySuiteManager.Use(TimeValue.Key, 1);
         }
 
-        void OnEnergyAdded(int amount)
+		void AddLifeButtonClicked()
+		{
+			EnergySuiteManager.Add(TimeValue.Life, 1);
+		}
+
+		void UseLifeButtonClicked()
+		{
+			EnergySuiteManager.Use(TimeValue.Life, 1);
+		}
+
+		void OnAmountChanged(int amount, TimeBasedValue timeBasedValue)
         {
-            CurrentAmountText.text = amount + "/" + EnergySuiteManager.MaxAmount;
+			string text = amount + "/" + timeBasedValue.MaxAmount;
+
+			switch (timeBasedValue.Type)
+			{
+				case TimeValue.Life:
+					CurrentLifeAmountText.text = text;
+					break;
+				case TimeValue.Key:
+					CurrentKeyAmountText.text = text;
+					break;
+				default:
+					break;
+			}
         }
 
-        void OnTimeLeftChanged(TimeSpan timeLeft)
+        void OnTimeLeftChanged(TimeSpan timeLeft, TimeBasedValue timeBasedValue)
         {
-            string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
-            TimeLeftText.text = formatString;
+			string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
+			float sliderValue = EnergySuiteManager.ConvertToSliderValue(timeLeft, timeBasedValue);
 
-            TimeLeftSlider.value = EnergySuiteManager.ConvertToSliderValue(timeLeft);
+			switch (timeBasedValue.Type)
+			{
+				case TimeValue.Life:
+					LifeTimeLeftText.text = formatString;
+					LifeTimeLeftSlider.value = sliderValue;
+					break;
+				case TimeValue.Key:
+					KeyTimeLeftText.text = formatString;
+					KeyTimeLeftSlider.value = sliderValue;
+					break;
+				default:
+					break;
+			}
         }
 
         #endregion

@@ -1,199 +1,143 @@
 ﻿using UnityEngine;
 using System;
-using MonsterLove.StateMachine;
+using System.Collections.Generic;
 
 namespace EnergySuite
 {
-    public class EnergySuiteBehaviour : Singleton<EnergySuiteBehaviour>
-    {
-        public enum State
-        {
-            Init,
-            Adding,
-            Full
-        }
+	public class EnergySuiteBehaviour : Singleton<EnergySuiteBehaviour>
+	{
+		#region Public Vars
 
-        #region Public Vars
+		public static TimeServer TimeServ;
+		public static long CurrentTimeSec;
 
-        public static TimeServerHandler TimeServHandler;
-        public static EnergyInventory EnergyInventory;
+		#endregion
 
-        public static long CurrentTimeSec;
+		#region Private Vars
 
-        #endregion
+		Dictionary<TimeValue, EnergySuiteValueBehaviour> _valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
+		static bool _settingUp = true;
+		static float _storedTickCount;
+		static Action _onUpdateTimeComplete = delegate
+		{
 
-        #region Private Vars
+		};
 
-        Action<int> OnEnergyChanged = delegate
-        {
-        };
+		#endregion
 
-        Action<TimeSpan> OnTimeLeftChanged = delegate
-        {
-        };
+		protected override void Awake()
+		{
+			base.Awake();
+			TimeServ = new TimeServer();
 
-        StateMachine<State> _stateMachine;
+			UpdateCurrentTime(delegate
+			{
+				var enumerator = EnergySuiteConfig.StoredInfo.GetEnumerator();
+				while (enumerator.MoveNext())
+				{
+					GameObject go = new GameObject();
+					go.name = "EnergySuiteValueBehvaiour_" + enumerator.Current.Value.Type.ToString();
+					go.transform.parent = transform;
+					go.AddComponent<EnergySuiteValueBehaviour>().CustomInit(enumerator.Current.Value);
+					_valueBehaviours.Add(enumerator.Current.Key, go.GetComponent<EnergySuiteValueBehaviour>());
+				}
+			});
+		}
 
-        #endregion
+		void Update()
+		{
+			if (_settingUp)
+				return;
 
-        protected override void Awake()
-        {
-            base.Awake();
-            EnergySuiteBehaviour.UpdateCurrentTime();
+			_storedTickCount += Time.unscaledDeltaTime;
+			if (_storedTickCount > 1)
+			{
+				CurrentTimeSec++;
+				_storedTickCount = 0;
+			}
+		}
 
-            if (EnergyInventory == null)
-                CreateInventoryInstance();
+		void OnDestroy()
+		{
+			var enumerator = _valueBehaviours.GetEnumerator();
+			while (enumerator.MoveNext())
+			{
+				enumerator.Current.Value.TimeServHandler.OnDestroy();
+				enumerator.Current.Value.TimeBasedValue.SaveAmount();
+			}
+		}
 
-            TimeServHandler = new TimeServerHandler(this);
-            _stateMachine = GetComponent<StateMachineRunner>().Initialize<State>(this);
-            _stateMachine.ChangeState(State.Init);
+		void OnApplicationPause(bool pauseStatus)
+		{
+			UpdateCurrentTime(delegate
+			{
+				var enumerator = _valueBehaviours.GetEnumerator();
+				while (enumerator.MoveNext())
+				{
+					enumerator.Current.Value.TimeServHandler.OnApplicationPause(pauseStatus);
 
-            EnergyInventory.OnEnergyIncreased += OnEnergyIncreasedHandler;
-            EnergyInventory.OnEnergyDecreased += OnEnergyDecreasedHandler;
+					if (pauseStatus)
+						enumerator.Current.Value.TimeBasedValue.SaveAmount();
+				}
+			});
+		}
 
-            TimeServHandler.OnTimeLeftChanged += OnTimeLeftChangedTimeServerHandler;
+		#region Event Handlers
 
-            OnEnergyChanged += OnEnergyChangedHandler;
-            OnTimeLeftChanged += OnTimeLeftChangedHandler;
-        }
+		#endregion
 
-        void OnDisable()
-        {
-            EnergyInventory.OnEnergyIncreased -= OnEnergyIncreasedHandler;
-            EnergyInventory.OnEnergyDecreased -= OnEnergyDecreasedHandler;
-            TimeServHandler.OnTimeLeftChanged -= OnTimeLeftChangedTimeServerHandler;
-            OnEnergyChanged -= OnEnergyChangedHandler;
-            OnTimeLeftChanged -= OnTimeLeftChangedHandler;
-        }
+		#region Public Methods
 
-        void OnDestroy()
-        {
-            TimeServHandler.OnDestroy();
-            EnergyInventory.SaveAmount();
-        }
+		public static void UpdateCurrentTime(Action onComplete)
+		{
+			if (onComplete != null)
+				_onUpdateTimeComplete = onComplete;
 
-        void OnApplicationPause(bool pauseStatus)
-        {
-            TimeServHandler.OnApplicationPause(pauseStatus);
-
-            if (pauseStatus)
-                EnergyInventory.SaveAmount();
-        }
-
-        #region Event Handlers
-
-        void Init_Enter()
-        {
-            if (CurrentTimeSec > TimeServHandler.TimeServ.GetLastClosedTime())
-                TimeServHandler.CheckAmountAdded();
-            else
-                TimeServHandler.CheckAmountAdded(0);
-
-            if (EnergyInventory.IsFull())
-                _stateMachine.ChangeState(State.Full);
-            else
-                _stateMachine.ChangeState(State.Adding);
-        }
-
-        void Adding_Update()
-        {
-            if (EnergyInventory.IsFull())
-                _stateMachine.ChangeState(State.Full);
-            else
-                TimeServHandler.Update();
-        }
-
-        void Full_Exit()
-        {
-            TimeServHandler.SetLastTimeAdded();
-        }
-
-        void OnEnergyIncreasedHandler(int amount)
-        {
-            OnEnergyChanged(amount);
-        }
-
-        void OnEnergyDecreasedHandler(int amount)
-        {
-            OnEnergyChanged(amount);
-        }
-
-        void OnTimeLeftChangedTimeServerHandler(TimeSpan timeLeft)
-        {
-            OnTimeLeftChanged(timeLeft.Add(new TimeSpan(0, 0, 1)));
-        }
-
-        void OnEnergyChangedHandler(int amount)
-        {
-            EnergySuiteManager.OnEnergyChanged(amount);
-        }
-
-        void OnTimeLeftChangedHandler(TimeSpan timeLeft)
-        {
-            EnergySuiteManager.OnTimeLeftChanged(timeLeft);
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        public void AddEnergy(int amount, bool setTime = true, long customTime = -1)
-        {
-            EnergyInventory.Add(amount);
-
-            if (setTime)
-            {
-                if (customTime == -1)
-                    TimeServHandler.SetLastTimeAdded();
-                else
-                    TimeServHandler.SetLastTimeAdded(customTime);
-            }
-
-            if (EnergyInventory.IsFull())
-                _stateMachine.ChangeState(State.Full);
-        }
-
-        public bool UseEnergy(int amount)
-        {
-            _stateMachine.ChangeState(State.Adding);
-            return EnergyInventory.Use(amount);
-        }
-
-        public static void CreateInventoryInstance()
-        {
-            EnergyInventory = new EnergyInventory();
-        }
-
-        public static void UpdateCurrentTime()
-        {
-            #if UNITY_IOS && !UNITY_EDITOR
+			_settingUp = true;
+#if UNITY_IOS && !UNITY_EDITOR
             iOSBridge.GetCurrentMediaTime();
-            #elif UNITY_ANDROID && !UNITY_EDITOR
+#elif UNITY_ANDROID && !UNITY_EDITOR
             AndroidJavaObject jo = new AndroidJavaObject("android.os.SystemClock");
             long time = jo.CallStatic<long>("elapsedRealtime"); 
             long timeSec = time/1000;
             CallbackGetTimeStatic(timeSec.ToString());
-            #elif UNITY_STANDALONE || UNITY_EDITOR
-            int time = Environment.TickCount;
-            int timeSec = time / 1000;
-            CallbackGetTimeStatic(timeSec.ToString());
-            #endif
-        }
+#elif UNITY_STANDALONE || UNITY_EDITOR
+			int time = Environment.TickCount;
 
-        public static void CallbackGetTimeStatic(string value)
-        {
-            CurrentTimeSec = (long)Convert.ToDouble(value);
-        }
+			if (time < 0)
+				time = Int32.MaxValue + Environment.TickCount;
 
-        public void CallbackGetTime(string value)
-        {
-            EnergySuiteBehaviour.CallbackGetTimeStatic(value);
-        }
+			int timeSec = time / 1000;
+			CallbackGetTimeStatic(timeSec.ToString());
+#endif
+		}
 
-        #endregion
+		public static void CallbackGetTimeStatic(string value)
+		{
+			CurrentTimeSec = (long)Convert.ToDouble(value);
+			_settingUp = false;
+			_onUpdateTimeComplete();
+		}
 
-        #region Private Methods
+		public void CallbackGetTime(string value)
+		{
+			EnergySuiteBehaviour.CallbackGetTimeStatic(value);
+		}
 
-        #endregion
-    }
+		public void Add(TimeValue type, int amount, bool setTime = true, long customTime = -1)
+		{
+			_valueBehaviours[type].Add(amount, setTime, customTime);
+		}
+
+		public bool Use(TimeValue type, int amount)
+		{
+			return _valueBehaviours[type].Use(amount);
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		#endregion
+	}
 }
