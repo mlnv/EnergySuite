@@ -53,15 +53,14 @@ EnergySuiteManager.Use(timeValueType, amount);
 EnergySuiteManager.OnAmountChanged += OnAmountChanged;
 
 void OnAmountChanged(int amount, TimeBasedValue timeBasedValue) {
-
-  string text = amount + "/" + timeBasedValue.MaxAmount;
-  
-  switch (timeBasedValue.Type) {
-	  case TimeValue.Life:
-		  CurrentLifeAmountText.text = text;
+	string text = amount + "/" + timeBasedValue.MaxAmount;
+	
+	switch (timeBasedValue.Type) {
+		case TimeValue.Life:
+			CurrentLifeAmountText.text = text;
 			break;
 		case TimeValue.Key:
-		  CurrentKeyAmountText.text = text;
+			CurrentKeyAmountText.text = text;
 			break;
 		default:
 			break;
@@ -76,18 +75,15 @@ void OnAmountChanged(int amount, TimeBasedValue timeBasedValue) {
 EnergySuiteManager.OnTimeLeftChanged += OnTimeLeftChanged;
 
 void OnTimeLeftChanged(TimeSpan timeLeft, TimeBasedValue timeBasedValue) {
-
-  string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
-	float sliderValue = EnergySuiteManager.ConvertToSliderValue(timeLeft, timeBasedValue);
+	
+	string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
   
-  switch (timeBasedValue.Type) {
-	  case TimeValue.Life:
-		  LifeTimeLeftText.text = formatString;
-			LifeTimeLeftSlider.value = sliderValue;
-		  break;
+  	switch (timeBasedValue.Type) {
+		case TimeValue.Life:
+			LifeTimeLeftText.text = formatString;
+			break;
 		case TimeValue.Key:
-		  KeyTimeLeftText.text = formatString;
-			KeyTimeLeftSlider.value = sliderValue;
+			KeyTimeLeftText.text = formatString;
 			break;
 		default:
 			break;
