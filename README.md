@@ -103,8 +103,13 @@ All examples you can find at Example folder.
 - [x] Encrypted PlayerPrefs
 - [x] Native iOS/Android time check
 - [x] Make system handle many simultaneous timers
+- [ ] Add Custom Editor
 - [ ] Simple handler solution for web server
 - [ ] Native iOS/Android notification system
+
+
+## Contribution
+Yes, please
 
 ## Dependencies
 
