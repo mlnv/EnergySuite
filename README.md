@@ -1,5 +1,4 @@
 # EnergySuite
-[![Gratipay User](https://img.shields.io/gratipay/user/makmlnv.svg?style=flat-square)]()
 
 This is a simple real-time energy based system for your Unity3d game. It depends on real-time, so even when the phone is not in the game. It works without an internet connection and is not depends on the time of the device (if you change time - nothing will change), iOS / Android.
 
