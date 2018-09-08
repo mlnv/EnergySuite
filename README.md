@@ -1,8 +1,8 @@
 # EnergySuite
 
-This is a simple real-time energy based system for your Unity3d game. It depends on real-time, so even when the phone is not in the game. It works without an internet connection and is not depends on the time of the device (if you change time - nothing will change), iOS / Android.
+This is a simple time system for your Unity3d game to manage different kinds of goods that depend on time. It works without internet connection and does not depend on the system time of the device (if you change time - nothing will change), tested on iOS / Android.
 
-<img alt="Follow me on Twitter"
+<img alt="Example screenshot"
 src="http://i.imgur.com/fT7ZJTB.png" width="250"/>
 
 ## Installation
@@ -119,7 +119,7 @@ Developed By
 -------
 Maksym Yemelianov
 
-<a href="https://twitter.com/makmlnv">
+<a href="https://twitter.com/maxemev">
 <img alt="Follow me on Twitter"
 src="http://i.imgur.com/Y6YCiG3.png" width="50"/>
 </a>
