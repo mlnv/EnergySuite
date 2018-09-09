@@ -1,6 +1,6 @@
 # EnergySuite
 
-This is a simple time system for your Unity3d game to manage different kinds of goods that depend on time. It works without internet connection and does not depend on the system time of the device (if you change time - nothing will change), tested on iOS / Android.
+This is a simple time system for your Unity3D game to manage different kinds of goods that depend on time. It works without internet connection and does not depend on the system time of the device (if user change device system time - it won't change anything for this system), tested on iOS / Android.
 
 <img alt="Example screenshot"
 src="http://i.imgur.com/fT7ZJTB.png" width="250"/>
