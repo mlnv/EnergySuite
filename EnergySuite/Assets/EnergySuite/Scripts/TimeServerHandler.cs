@@ -6,33 +6,33 @@ namespace EnergySuite
 {
 	public class TimeServerHandler
 	{
-		private const float _timeToCheck = 1f;
+        private const float timeToCheck = 1f;
 
-        private readonly EnergySuiteValueBehaviour _energySuiteValueBehaviour;
-        private readonly TimeBasedValue _timeBasedValue;
+        private readonly EnergySuiteValueBehaviour energySuiteValueBehaviour;
+        private readonly TimeBasedValue timeBasedValue;
 
-        private bool _fromPaused;
-        private bool _waitForCheck = true;
-        private float _timeToCheckTemp;
+        private bool fromPaused;
+        private bool waitForCheck = true;
+        private float timeToCheckTemp;
 
 		public TimeServerHandler(EnergySuiteValueBehaviour energySuiteValueBehaviour, TimeBasedValue timeBasedValue)
 		{
-			_timeBasedValue = timeBasedValue;
-			_energySuiteValueBehaviour = energySuiteValueBehaviour;
+			this.timeBasedValue = timeBasedValue;
+			this.energySuiteValueBehaviour = energySuiteValueBehaviour;
 		}
 
 		public void Update()
 		{
-			if (_waitForCheck)
+			if (waitForCheck)
 				return;
 
-			if (_timeToCheckTemp > 0f)
+			if (timeToCheckTemp > 0f)
 			{
-				_timeToCheckTemp -= Time.unscaledDeltaTime;
+				timeToCheckTemp -= Time.unscaledDeltaTime;
 			}
 			else
 			{
-				_timeToCheckTemp = _timeToCheck;
+				timeToCheckTemp = timeToCheck;
 				CheckCanAddOne();
 			}
 		}
@@ -42,11 +42,11 @@ namespace EnergySuite
 			if (pauseStatus)
 			{
 				EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
-				_fromPaused = true;
+				fromPaused = true;
 			}
-			else if (_fromPaused)
+			else if (fromPaused)
 			{
-				_fromPaused = false;
+				fromPaused = false;
 				CheckAmountAdded();
 			}
 		}
@@ -54,16 +54,16 @@ namespace EnergySuite
 		public void OnDestroy()
 		{
 			EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
-			_fromPaused = false;
-			_waitForCheck = true;
+			fromPaused = false;
+			waitForCheck = true;
 		}
 
 		public void SetLastTimeAdded(long time = -1)
 		{
 			if (time == -1)
-				_timeBasedValue.SetTimeLastAdded();
+				timeBasedValue.SetTimeLastAdded();
 			else
-				_timeBasedValue.SetTimeLastAdded(time);
+				timeBasedValue.SetTimeLastAdded(time);
 		}
 
 		public void CheckAmountAdded(long lastClosedTime = -1)
@@ -73,8 +73,8 @@ namespace EnergySuite
 			if (lastClosedTime == -1)
 				lastClosedTime = EnergySuiteBehaviour.TimeServ.GetLastClosedTime();
 
-			TimeSpan timeLeftToAddEnergy = _timeBasedValue.GetTimeToNextAdd(lastClosedTime);
-			long totalTimeToAddEnergy = _timeBasedValue.GetTimeToAddEnergy();
+			TimeSpan timeLeftToAddEnergy = timeBasedValue.GetTimeToNextAdd(lastClosedTime);
+			long totalTimeToAddEnergy = timeBasedValue.GetTimeToAddEnergy();
 
 			long lastTimeAdded;
 
@@ -82,7 +82,7 @@ namespace EnergySuite
 
 			if (timeAddedEnergy > EnergySuiteBehaviour.CurrentTimeSec)
 			{
-				_waitForCheck = false;
+				waitForCheck = false;
 				return;
 			}
 
@@ -102,22 +102,22 @@ namespace EnergySuite
 
 			if (result > 0)
 			{
-				_energySuiteValueBehaviour.Add(result, true, lastTimeAdded);
+				energySuiteValueBehaviour.Add(result, true, lastTimeAdded);
 			}
 
-			_waitForCheck = false;
+			waitForCheck = false;
 		}
 
 		public void CheckCanAddOne()
 		{
-			if (_timeBasedValue.GetTimeToNextAdd() >= TimeSpan.Zero)
+			if (timeBasedValue.GetTimeToNextAdd() >= TimeSpan.Zero)
 			{
-				EnergySuiteManager.OnTimeLeftChanged(_timeBasedValue.GetTimeToNextAdd(), _timeBasedValue);
+				EnergySuiteManager.OnTimeLeftChanged(timeBasedValue.GetTimeToNextAdd(), timeBasedValue);
 			}
 			else
 			{
-				_energySuiteValueBehaviour.Add(1);
-				EnergySuiteManager.OnTimeLeftChanged(_timeBasedValue.GetTimeToNextAdd(), _timeBasedValue);
+				energySuiteValueBehaviour.Add(1);
+				EnergySuiteManager.OnTimeLeftChanged(timeBasedValue.GetTimeToNextAdd(), timeBasedValue);
 			}
 		}
 	}

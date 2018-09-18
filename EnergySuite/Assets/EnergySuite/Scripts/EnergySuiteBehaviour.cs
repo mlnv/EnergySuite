@@ -9,10 +9,10 @@ namespace EnergySuite
 		public static TimeServer TimeServ;
 		public static long CurrentTimeSec;
 
-		private Dictionary<TimeValue, EnergySuiteValueBehaviour> _valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
-		private static bool _settingUp = true;
-		private static float _storedTickCount;
-		private static Action _onUpdateTimeComplete = delegate
+        private Dictionary<TimeValue, EnergySuiteValueBehaviour> valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
+        private static bool settingUp = true;
+        private static float storedTickCount;
+        private static Action onUpdateTimeComplete = delegate
 		{
 
 		};
@@ -31,27 +31,27 @@ namespace EnergySuite
 					go.name = "EnergySuiteValueBehvaiour_" + enumerator.Current.Value.Type.ToString();
 					go.transform.parent = transform;
 					go.AddComponent<EnergySuiteValueBehaviour>().CustomInit(enumerator.Current.Value);
-					_valueBehaviours.Add(enumerator.Current.Key, go.GetComponent<EnergySuiteValueBehaviour>());
+					valueBehaviours.Add(enumerator.Current.Key, go.GetComponent<EnergySuiteValueBehaviour>());
 				}
 			});
 		}
 
 		private void Update()
 		{
-			if (_settingUp)
+			if (settingUp)
 				return;
 
-			_storedTickCount += Time.unscaledDeltaTime;
-			if (_storedTickCount > 1)
+			storedTickCount += Time.unscaledDeltaTime;
+			if (storedTickCount > 1)
 			{
 				CurrentTimeSec++;
-				_storedTickCount = 0;
+				storedTickCount = 0;
 			}
 		}
 
 		private void OnDestroy()
 		{
-			var enumerator = _valueBehaviours.GetEnumerator();
+			var enumerator = valueBehaviours.GetEnumerator();
 			while (enumerator.MoveNext())
 			{
 				enumerator.Current.Value.TimeServHandler.OnDestroy();
@@ -63,7 +63,7 @@ namespace EnergySuite
 		{
 			UpdateCurrentTime(delegate
 			{
-				var enumerator = _valueBehaviours.GetEnumerator();
+				var enumerator = valueBehaviours.GetEnumerator();
 				while (enumerator.MoveNext())
 				{
 					enumerator.Current.Value.TimeServHandler.OnApplicationPause(pauseStatus);
@@ -77,9 +77,9 @@ namespace EnergySuite
 		public static void UpdateCurrentTime(Action onComplete)
 		{
 			if (onComplete != null)
-				_onUpdateTimeComplete = onComplete;
+				onUpdateTimeComplete = onComplete;
 
-			_settingUp = true;
+			settingUp = true;
 #if UNITY_IOS && !UNITY_EDITOR
             iOSBridge.GetCurrentMediaTime();
 #elif UNITY_ANDROID && !UNITY_EDITOR
@@ -101,8 +101,8 @@ namespace EnergySuite
 		public static void CallbackGetTimeStatic(string value)
 		{
 			CurrentTimeSec = (long)Convert.ToDouble(value);
-			_settingUp = false;
-			_onUpdateTimeComplete();
+			settingUp = false;
+			onUpdateTimeComplete();
 		}
 
 		public void CallbackGetTime(string value)
@@ -112,12 +112,12 @@ namespace EnergySuite
 
 		public void Add(TimeValue type, int amount, bool setTime = true, long customTime = -1)
 		{
-			_valueBehaviours[type].Add(amount, setTime, customTime);
+			valueBehaviours[type].Add(amount, setTime, customTime);
 		}
 
 		public bool Use(TimeValue type, int amount)
 		{
-			return _valueBehaviours[type].Use(amount);
+			return valueBehaviours[type].Use(amount);
 		}
 	}
 }
