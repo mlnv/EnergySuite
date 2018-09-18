@@ -6,14 +6,8 @@ namespace EnergySuite
 {
 	public class EnergySuiteBehaviour : Singleton<EnergySuiteBehaviour>
 	{
-		#region Public Vars
-
 		public static TimeServer TimeServ;
 		public static long CurrentTimeSec;
-
-		#endregion
-
-		#region Private Vars
 
 		Dictionary<TimeValue, EnergySuiteValueBehaviour> _valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
 		static bool _settingUp = true;
@@ -22,8 +16,6 @@ namespace EnergySuite
 		{
 
 		};
-
-		#endregion
 
 		protected override void Awake()
 		{
@@ -82,12 +74,6 @@ namespace EnergySuite
 			});
 		}
 
-		#region Event Handlers
-
-		#endregion
-
-		#region Public Methods
-
 		public static void UpdateCurrentTime(Action onComplete)
 		{
 			if (onComplete != null)
@@ -133,11 +119,5 @@ namespace EnergySuite
 		{
 			return _valueBehaviours[type].Use(amount);
 		}
-
-		#endregion
-
-		#region Private Methods
-
-		#endregion
 	}
 }

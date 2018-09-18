@@ -7,8 +7,6 @@ namespace EnergySuite
 {
     public class ExampleEnegrySuite : MonoBehaviour
     {
-		#region Public Vars
-
 		public Text CurrentKeyAmountText;
 		public Text CurrentLifeAmountText;
 		public Text KeyTimeLeftText;
@@ -19,12 +17,6 @@ namespace EnergySuite
 		public Button UseKeyButton;
 		public Button AddLifeButton;
 		public Button UseLifeButton;
-
-        #endregion
-
-        #region Private Vars
-
-        #endregion
 
         void OnEnable()
         {
@@ -54,8 +46,6 @@ namespace EnergySuite
 			CurrentLifeAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Life) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Life);
 			CurrentKeyAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Key) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Key);
         }
-
-        #region Event Handlers
 
         void AddKeyButtonClicked()
         {
@@ -113,15 +103,5 @@ namespace EnergySuite
 					break;
 			}
         }
-
-        #endregion
-
-        #region Public Methods
-
-        #endregion
-
-        #region Private Methods
-
-        #endregion
     }
 }

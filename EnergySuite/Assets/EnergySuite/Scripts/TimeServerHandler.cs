@@ -6,12 +6,6 @@ namespace EnergySuite
 {
 	public class TimeServerHandler
 	{
-		#region Public Vars
-
-		#endregion
-
-		#region Private Vars
-
 		const float _timeToCheck = 1f;
 
 		readonly EnergySuiteValueBehaviour _energySuiteValueBehaviour;
@@ -20,8 +14,6 @@ namespace EnergySuite
 		bool _fromPaused;
 		bool _waitForCheck = true;
 		float _timeToCheckTemp;
-
-		#endregion
 
 		public TimeServerHandler(EnergySuiteValueBehaviour energySuiteValueBehaviour, TimeBasedValue timeBasedValue)
 		{
@@ -65,12 +57,6 @@ namespace EnergySuite
 			_fromPaused = false;
 			_waitForCheck = true;
 		}
-
-		#region Event Handlers
-
-		#endregion
-
-		#region Public Methods
 
 		public void SetLastTimeAdded(long time = -1)
 		{
@@ -134,11 +120,5 @@ namespace EnergySuite
 				EnergySuiteManager.OnTimeLeftChanged(_timeBasedValue.GetTimeToNextAdd(), _timeBasedValue);
 			}
 		}
-
-		#endregion
-
-		#region Private Methods
-
-		#endregion
 	}
 }

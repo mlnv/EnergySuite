@@ -13,18 +13,8 @@ namespace EnergySuite
 
 	public class EnergySuiteValueBehaviour : StateKitLite<State>
 	{
-		#region Public Vars
-
 		public TimeServerHandler TimeServHandler;
 		public TimeBasedValue TimeBasedValue;
-
-		#endregion
-
-		#region Private Vars
-
-		#endregion
-
-		#region Event Handlers
 
 		void Init_Enter()
 		{
@@ -55,10 +45,6 @@ namespace EnergySuite
 			TimeBasedValue.SetTimeLastAdded();
 		}
 
-		#endregion
-
-		#region Public Methods
-
 		public void Add(int amount, bool setTime = true, long customTime = -1)
 		{
 			TimeBasedValue.Add(amount);
@@ -87,11 +73,5 @@ namespace EnergySuite
 			TimeBasedValue = timeBasedValue;
 			initialState = State.Init;
 		}
-
-		#endregion
-
-		#region Private Methods
-
-		#endregion
 	}
 }

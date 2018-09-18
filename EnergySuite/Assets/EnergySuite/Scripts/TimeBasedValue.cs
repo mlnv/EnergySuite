@@ -6,8 +6,6 @@ namespace EnergySuite
 {
 	public class TimeBasedValue
 	{
-		#region Public Vars
-
 		public TimeValue Type;
 		public long LastTimeAdded;
 		public int TimeToReloadMin;
@@ -15,12 +13,6 @@ namespace EnergySuite
 		public int MaxAmount;
 
 		public int Amount { get; private set; }
-
-		#endregion
-
-		#region Private Vars
-
-		#endregion
 
 		public TimeBasedValue(TimeValue type, int timeToReloadMin, int timeToReloadSec, int maxAmount)
 		{
@@ -34,12 +26,6 @@ namespace EnergySuite
 
 			Amount = LoadAmount();
 		}
-
-		#region Event Handlers
-
-		#endregion
-
-		#region Public Methods
 
 		public void Add(int amount)
 		{
@@ -88,10 +74,6 @@ namespace EnergySuite
 		{
 			return TimeToReloadMin * 60 + TimeToReloadSec;
 		}
-
-		#endregion
-
-		#region Private Methods
 
 		int LoadAmount()
 		{
@@ -144,7 +126,5 @@ namespace EnergySuite
 		{
 			return EnergySuiteConfig.AmountPrefixKey + Type.ToString();
 		}
-
-		#endregion
 	}
 }

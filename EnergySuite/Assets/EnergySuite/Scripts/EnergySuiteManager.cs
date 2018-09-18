@@ -6,8 +6,6 @@ namespace EnergySuite
 {
 	public static class EnergySuiteManager
 	{
-		#region Public Vars
-
 		/// <summary>
 		/// The amount changed.
 		/// </summary>
@@ -21,18 +19,6 @@ namespace EnergySuite
 		public static Action<TimeSpan, TimeBasedValue> OnTimeLeftChanged = delegate
 		{
 		};
-
-		#endregion
-
-		#region Private Vars
-
-		#endregion
-
-		#region Event Handlers
-
-		#endregion
-
-		#region Public Methods
 
 		/// <summary>
 		/// Add the specified amount.
@@ -85,11 +71,5 @@ namespace EnergySuite
 
 			return result;
 		}
-
-		#endregion
-
-		#region Private Methods
-
-		#endregion
 	}
 }
