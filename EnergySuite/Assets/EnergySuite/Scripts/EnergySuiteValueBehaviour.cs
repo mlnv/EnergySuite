@@ -16,7 +16,7 @@ namespace EnergySuite
 		public TimeServerHandler TimeServHandler;
 		public TimeBasedValue TimeBasedValue;
 
-		void Init_Enter()
+		private void Init_Enter()
 		{
 			if (EnergySuiteBehaviour.CurrentTimeSec > EnergySuiteBehaviour.TimeServ.GetLastClosedTime())
 			{
@@ -32,7 +32,7 @@ namespace EnergySuite
 				currentState = State.Adding;
 		}
 
-		void Adding_Tick()
+		private void Adding_Tick()
 		{
 			if (TimeBasedValue.IsFull())
 				currentState = State.Full;
@@ -40,7 +40,7 @@ namespace EnergySuite
 				TimeServHandler.Update();
 		}
 
-		void Full_Exit()
+		private void Full_Exit()
 		{
 			TimeBasedValue.SetTimeLastAdded();
 		}

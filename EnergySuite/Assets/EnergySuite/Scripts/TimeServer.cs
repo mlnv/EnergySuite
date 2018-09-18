@@ -22,12 +22,12 @@ namespace EnergySuite
             return GetLastClosedTimeHandle();
         }
 
-        void SetLastClosedTimeHandle()
+        private void SetLastClosedTimeHandle()
         {
             ZPlayerPrefs.SetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
         }
 
-        long GetLastClosedTimeHandle()
+        private long GetLastClosedTimeHandle()
         {
             string timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
             return (long)Convert.ToDouble(timeString);

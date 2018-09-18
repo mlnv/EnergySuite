@@ -18,7 +18,7 @@ namespace EnergySuite
 		public Button AddLifeButton;
 		public Button UseLifeButton;
 
-        void OnEnable()
+        private void OnEnable()
         {
 			//Example
             Time.timeScale = 0;
@@ -31,7 +31,7 @@ namespace EnergySuite
 			UseLifeButton.onClick.AddListener(UseLifeButtonClicked);
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
 			EnergySuiteManager.OnAmountChanged -= OnAmountChanged;
 			EnergySuiteManager.OnTimeLeftChanged -= OnTimeLeftChanged;
@@ -41,33 +41,33 @@ namespace EnergySuite
 			UseLifeButton.onClick.RemoveListener(UseLifeButtonClicked);
         }
 
-        void Start()
+        private void Start()
         {
 			CurrentLifeAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Life) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Life);
 			CurrentKeyAmountText.text = EnergySuiteManager.GetAmount(TimeValue.Key) + "/" + EnergySuiteManager.GetMaxAmount(TimeValue.Key);
         }
 
-        void AddKeyButtonClicked()
+        private void AddKeyButtonClicked()
         {
 			EnergySuiteManager.Add(TimeValue.Key, 1);
         }
 
-        void UseKeyButtonClicked()
+        private void UseKeyButtonClicked()
         {
 			EnergySuiteManager.Use(TimeValue.Key, 1);
         }
 
-		void AddLifeButtonClicked()
+        private void AddLifeButtonClicked()
 		{
 			EnergySuiteManager.Add(TimeValue.Life, 1);
 		}
 
-		void UseLifeButtonClicked()
+        private void UseLifeButtonClicked()
 		{
 			EnergySuiteManager.Use(TimeValue.Life, 1);
 		}
 
-		void OnAmountChanged(int amount, TimeBasedValue timeBasedValue)
+        private void OnAmountChanged(int amount, TimeBasedValue timeBasedValue)
         {
 			string text = amount + "/" + timeBasedValue.MaxAmount;
 
@@ -84,7 +84,7 @@ namespace EnergySuite
 			}
         }
 
-        void OnTimeLeftChanged(TimeSpan timeLeft, TimeBasedValue timeBasedValue)
+        private void OnTimeLeftChanged(TimeSpan timeLeft, TimeBasedValue timeBasedValue)
         {
 			string formatString = string.Format("{0:00}:{1:00}", timeLeft.Minutes, timeLeft.Seconds);
 			float sliderValue = EnergySuiteManager.ConvertToSliderValue(timeLeft, timeBasedValue);

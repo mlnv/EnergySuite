@@ -75,12 +75,12 @@ namespace EnergySuite
 			return TimeToReloadMin * 60 + TimeToReloadSec;
 		}
 
-		int LoadAmount()
+		private int LoadAmount()
 		{
 			return ZPlayerPrefs.GetInt(GetAmountKey(), 0);
 		}
 
-		void SetTimeLastAddedHandle(long time = -1)
+		private void SetTimeLastAddedHandle(long time = -1)
 		{
 			long timeToSave;
 
@@ -93,7 +93,7 @@ namespace EnergySuite
 			ZPlayerPrefs.SetString(GetLastTimeAddedKey(), timeToSave.ToString());
 		}
 
-		TimeSpan GetTimeLeft(long fromTime = -1)
+		private TimeSpan GetTimeLeft(long fromTime = -1)
 		{
 			long currentTime = 0;
 
@@ -107,7 +107,7 @@ namespace EnergySuite
 			return new TimeSpan(0, 0, seconds);
 		}
 
-		long GetTimeFromLastAdded()
+		private long GetTimeFromLastAdded()
 		{
 			if (!ZPlayerPrefs.HasKey(GetLastTimeAddedKey()))
 				SetTimeLastAddedHandle();
@@ -117,12 +117,12 @@ namespace EnergySuite
 			return (long)Convert.ToDouble(timeString);
 		}
 
-		string GetLastTimeAddedKey()
+		private string GetLastTimeAddedKey()
 		{
 			return EnergySuiteConfig.LastTimeAddedPrefixKey + Type.ToString();
 		}
 
-		string GetAmountKey()
+		private string GetAmountKey()
 		{
 			return EnergySuiteConfig.AmountPrefixKey + Type.ToString();
 		}

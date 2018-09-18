@@ -4,7 +4,7 @@ namespace EnergySuite
 {
     public static class DateTimeExtensions
     {
-        static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+        private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 
         public static double ConvertToUnixTimestamp(this DateTime date)
         {

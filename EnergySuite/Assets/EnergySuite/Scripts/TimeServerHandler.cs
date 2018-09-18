@@ -6,14 +6,14 @@ namespace EnergySuite
 {
 	public class TimeServerHandler
 	{
-		const float _timeToCheck = 1f;
+		private const float _timeToCheck = 1f;
 
-		readonly EnergySuiteValueBehaviour _energySuiteValueBehaviour;
-		readonly TimeBasedValue _timeBasedValue;
+        private readonly EnergySuiteValueBehaviour _energySuiteValueBehaviour;
+        private readonly TimeBasedValue _timeBasedValue;
 
-		bool _fromPaused;
-		bool _waitForCheck = true;
-		float _timeToCheckTemp;
+        private bool _fromPaused;
+        private bool _waitForCheck = true;
+        private float _timeToCheckTemp;
 
 		public TimeServerHandler(EnergySuiteValueBehaviour energySuiteValueBehaviour, TimeBasedValue timeBasedValue)
 		{

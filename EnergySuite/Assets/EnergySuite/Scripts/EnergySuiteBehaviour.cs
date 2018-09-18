@@ -9,10 +9,10 @@ namespace EnergySuite
 		public static TimeServer TimeServ;
 		public static long CurrentTimeSec;
 
-		Dictionary<TimeValue, EnergySuiteValueBehaviour> _valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
-		static bool _settingUp = true;
-		static float _storedTickCount;
-		static Action _onUpdateTimeComplete = delegate
+		private Dictionary<TimeValue, EnergySuiteValueBehaviour> _valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
+		private static bool _settingUp = true;
+		private static float _storedTickCount;
+		private static Action _onUpdateTimeComplete = delegate
 		{
 
 		};
@@ -36,7 +36,7 @@ namespace EnergySuite
 			});
 		}
 
-		void Update()
+		private void Update()
 		{
 			if (_settingUp)
 				return;
@@ -49,7 +49,7 @@ namespace EnergySuite
 			}
 		}
 
-		void OnDestroy()
+		private void OnDestroy()
 		{
 			var enumerator = _valueBehaviours.GetEnumerator();
 			while (enumerator.MoveNext())
@@ -59,7 +59,7 @@ namespace EnergySuite
 			}
 		}
 
-		void OnApplicationPause(bool pauseStatus)
+		private void OnApplicationPause(bool pauseStatus)
 		{
 			UpdateCurrentTime(delegate
 			{
