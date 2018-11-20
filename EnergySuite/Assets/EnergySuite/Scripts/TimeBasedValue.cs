@@ -29,8 +29,10 @@ namespace EnergySuite
 
 		public void Add(int amount)
 		{
-			if (Amount + amount <= MaxAmount)
-				Amount += amount;
+            if (Amount + amount <= MaxAmount)
+            {
+                Amount += amount;
+            }
 			else
 			{
 				Amount = MaxAmount;
@@ -41,10 +43,14 @@ namespace EnergySuite
 
 		public bool Use(int amount)
 		{
-			if (Amount - amount >= 0)
-				Amount -= amount;
-			else
-				return false;
+            if (Amount - amount >= 0)
+            {
+                Amount -= amount;
+            }
+            else
+            {
+                return false;
+            }
 
 			EnergySuiteManager.OnAmountChanged(Amount, this);
 			return true;
@@ -82,12 +88,12 @@ namespace EnergySuite
 
 		private void SetTimeLastAddedHandle(long time = -1)
 		{
-			long timeToSave;
+			long timeToSave = time;
 
-			if (time == -1)
-				timeToSave = EnergySuiteBehaviour.CurrentTimeSec;
-			else
-				timeToSave = time;
+            if (time == -1)
+            {
+                timeToSave = EnergySuiteBehaviour.CurrentTimeSec;
+            }
 
 			LastTimeAdded = timeToSave;
 			ZPlayerPrefs.SetString(GetLastTimeAddedKey(), timeToSave.ToString());
@@ -95,24 +101,26 @@ namespace EnergySuite
 
 		private TimeSpan GetTimeLeft(long fromTime = -1)
 		{
-			long currentTime = 0;
+			long currentTime = fromTime;
 
-			if (fromTime == -1)
-				currentTime = EnergySuiteBehaviour.CurrentTimeSec;
-			else
-				currentTime = fromTime;
+            if (fromTime == -1)
+            {
+                currentTime = EnergySuiteBehaviour.CurrentTimeSec;
+            }
 
-			long timeToAddEnergy = LastTimeAdded + GetTimeToAddEnergy();
-			int seconds = (int)(timeToAddEnergy - currentTime);
+			var timeToAddEnergy = LastTimeAdded + GetTimeToAddEnergy();
+			var seconds = (int)(timeToAddEnergy - currentTime);
 			return new TimeSpan(0, 0, seconds);
 		}
 
 		private long GetTimeFromLastAdded()
 		{
-			if (!ZPlayerPrefs.HasKey(GetLastTimeAddedKey()))
-				SetTimeLastAddedHandle();
+            if (!ZPlayerPrefs.HasKey(GetLastTimeAddedKey()))
+            {
+                SetTimeLastAddedHandle();
+            }
 
-			string timeString = ZPlayerPrefs.GetString(GetLastTimeAddedKey(), EnergySuiteBehaviour.CurrentTimeSec.ToString());
+			var timeString = ZPlayerPrefs.GetString(GetLastTimeAddedKey(), EnergySuiteBehaviour.CurrentTimeSec.ToString());
 
 			return (long)Convert.ToDouble(timeString);
 		}

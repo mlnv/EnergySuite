@@ -9,16 +9,12 @@ namespace EnergySuite
 		/// <summary>
 		/// The amount changed.
 		/// </summary>
-		public static Action<int, TimeBasedValue> OnAmountChanged = delegate
-		{
-		};
+		public static Action<int, TimeBasedValue> OnAmountChanged = delegate { };
 
 		/// <summary>
 		/// Time left to add 1.
 		/// </summary>
-		public static Action<TimeSpan, TimeBasedValue> OnTimeLeftChanged = delegate
-		{
-		};
+		public static Action<TimeSpan, TimeBasedValue> OnTimeLeftChanged = delegate { };
 
 		/// <summary>
 		/// Add the specified amount.
@@ -61,12 +57,12 @@ namespace EnergySuite
 		/// <param name="timeLeft">Time left to add one energy</param>
 		public static float ConvertToSliderValue(TimeSpan timeLeft, TimeBasedValue timeBasedValue)
 		{
-			float result = 0f;
+			var result = 0f;
 
 			long timeToAddDuration = timeBasedValue.GetTimeToAddEnergy();
-			long timeLeftDuration = (long)timeLeft.TotalSeconds;
+			var timeLeftDuration = (long)timeLeft.TotalSeconds;
 
-			long percent = (100 * timeLeftDuration) / timeToAddDuration;
+			var percent = (100 * timeLeftDuration) / timeToAddDuration;
 			result = percent / 100f;
 
 			return result;

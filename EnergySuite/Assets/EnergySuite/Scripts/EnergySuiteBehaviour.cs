@@ -12,14 +12,12 @@ namespace EnergySuite
         private Dictionary<TimeValue, EnergySuiteValueBehaviour> valueBehaviours = new Dictionary<TimeValue, EnergySuiteValueBehaviour>();
         private static bool settingUp = true;
         private static float storedTickCount;
-        private static Action onUpdateTimeComplete = delegate
-		{
-
-		};
+        private static Action onUpdateTimeComplete = delegate { };
 
 		protected override void Awake()
 		{
 			base.Awake();
+
 			TimeServ = new TimeServer();
 
 			UpdateCurrentTime(delegate
@@ -27,7 +25,7 @@ namespace EnergySuite
 				var enumerator = EnergySuiteConfig.StoredInfo.GetEnumerator();
 				while (enumerator.MoveNext())
 				{
-					GameObject go = new GameObject();
+					var go = new GameObject();
 					go.name = "EnergySuiteValueBehvaiour_" + enumerator.Current.Value.Type.ToString();
 					go.transform.parent = transform;
 					go.AddComponent<EnergySuiteValueBehaviour>().CustomInit(enumerator.Current.Value);
@@ -38,10 +36,13 @@ namespace EnergySuite
 
 		private void Update()
 		{
-			if (settingUp)
-				return;
+            if (settingUp)
+            {
+                return;
+            }
 
 			storedTickCount += Time.unscaledDeltaTime;
+
 			if (storedTickCount > 1)
 			{
 				CurrentTimeSec++;
@@ -52,6 +53,7 @@ namespace EnergySuite
 		private void OnDestroy()
 		{
 			var enumerator = valueBehaviours.GetEnumerator();
+
 			while (enumerator.MoveNext())
 			{
 				enumerator.Current.Value.TimeServHandler.OnDestroy();
@@ -64,6 +66,7 @@ namespace EnergySuite
 			UpdateCurrentTime(delegate
 			{
 				var enumerator = valueBehaviours.GetEnumerator();
+
 				while (enumerator.MoveNext())
 				{
 					enumerator.Current.Value.TimeServHandler.OnApplicationPause(pauseStatus);
@@ -76,10 +79,13 @@ namespace EnergySuite
 
 		public static void UpdateCurrentTime(Action onComplete)
 		{
-			if (onComplete != null)
-				onUpdateTimeComplete = onComplete;
+            if (onComplete != null)
+            {
+                onUpdateTimeComplete = onComplete;
+            }
 
 			settingUp = true;
+
 #if UNITY_IOS && !UNITY_EDITOR
             iOSBridge.GetCurrentMediaTime();
 #elif UNITY_ANDROID && !UNITY_EDITOR
@@ -88,12 +94,15 @@ namespace EnergySuite
             long timeSec = time/1000;
             CallbackGetTimeStatic(timeSec.ToString());
 #elif UNITY_STANDALONE || UNITY_EDITOR
-			int time = Environment.TickCount;
+			var time = Environment.TickCount;
 
-			if (time < 0)
-				time = Int32.MaxValue + Environment.TickCount;
+            if (time < 0)
+            {
+                time = Int32.MaxValue + Environment.TickCount;
+            }
 
-			int timeSec = time / 1000;
+			var timeSec = time / 1000;
+
 			CallbackGetTimeStatic(timeSec.ToString());
 #endif
 		}

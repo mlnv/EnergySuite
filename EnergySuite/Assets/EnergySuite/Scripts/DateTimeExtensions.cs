@@ -8,7 +8,7 @@ namespace EnergySuite
 
         public static double ConvertToUnixTimestamp(this DateTime date)
         {
-            TimeSpan diff = date - UnixEpoch;
+            var diff = date - UnixEpoch;
             return Math.Floor(diff.TotalSeconds);
         }
 

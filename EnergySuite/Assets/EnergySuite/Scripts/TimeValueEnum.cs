@@ -1,5 +1,4 @@
-﻿
-namespace EnergySuite
+﻿namespace EnergySuite
 {
 	public enum TimeValue
 	{

@@ -23,17 +23,19 @@ namespace EnergySuite
 
 		public void Update()
 		{
-			if (waitForCheck)
-				return;
+            if (this.waitForCheck)
+            {
+                return;
+            }
 
-			if (timeToCheckTemp > 0f)
+			if (this.timeToCheckTemp > 0f)
 			{
-				timeToCheckTemp -= Time.unscaledDeltaTime;
+				this.timeToCheckTemp -= Time.unscaledDeltaTime;
 			}
 			else
 			{
-				timeToCheckTemp = timeToCheck;
-				CheckCanAddOne();
+				this.timeToCheckTemp = timeToCheck;
+				this.CheckCanAddOne();
 			}
 		}
 
@@ -42,59 +44,64 @@ namespace EnergySuite
 			if (pauseStatus)
 			{
 				EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
-				fromPaused = true;
+				this.fromPaused = true;
 			}
-			else if (fromPaused)
+			else if (this.fromPaused)
 			{
-				fromPaused = false;
-				CheckAmountAdded();
+				this.fromPaused = false;
+				this.CheckAmountAdded();
 			}
 		}
 
 		public void OnDestroy()
 		{
 			EnergySuiteBehaviour.TimeServ.SetLastClosedTime();
-			fromPaused = false;
-			waitForCheck = true;
+			this.fromPaused = false;
+			this.waitForCheck = true;
 		}
 
 		public void SetLastTimeAdded(long time = -1)
 		{
-			if (time == -1)
-				timeBasedValue.SetTimeLastAdded();
-			else
-				timeBasedValue.SetTimeLastAdded(time);
+            if (time == -1)
+            {
+                timeBasedValue.SetTimeLastAdded();
+            }
+            else
+            {
+                timeBasedValue.SetTimeLastAdded(time);
+            }
 		}
 
 		public void CheckAmountAdded(long lastClosedTime = -1)
 		{
-			int result = 0;
+			var result = 0;
 
-			if (lastClosedTime == -1)
-				lastClosedTime = EnergySuiteBehaviour.TimeServ.GetLastClosedTime();
+            if (lastClosedTime == -1)
+            {
+                lastClosedTime = EnergySuiteBehaviour.TimeServ.GetLastClosedTime();
+            }
 
-			TimeSpan timeLeftToAddEnergy = timeBasedValue.GetTimeToNextAdd(lastClosedTime);
-			long totalTimeToAddEnergy = timeBasedValue.GetTimeToAddEnergy();
-
-			long lastTimeAdded;
-
-			long timeAddedEnergy = lastClosedTime + (long)timeLeftToAddEnergy.TotalSeconds;
+			var timeLeftToAddEnergy = timeBasedValue.GetTimeToNextAdd(lastClosedTime);
+			var totalTimeToAddEnergy = timeBasedValue.GetTimeToAddEnergy();
+			var timeAddedEnergy = lastClosedTime + (long)timeLeftToAddEnergy.TotalSeconds;
 
 			if (timeAddedEnergy > EnergySuiteBehaviour.CurrentTimeSec)
 			{
-				waitForCheck = false;
+				this.waitForCheck = false;
 				return;
 			}
 
 			result++;
-			lastTimeAdded = timeAddedEnergy;
+			var lastTimeAdded = timeAddedEnergy;
 
 			while (true)
 			{
-				long newLastTimeAdded = lastTimeAdded + totalTimeToAddEnergy;
+				var newLastTimeAdded = lastTimeAdded + totalTimeToAddEnergy;
 
-				if (newLastTimeAdded > EnergySuiteBehaviour.CurrentTimeSec)
-					break;
+                if (newLastTimeAdded > EnergySuiteBehaviour.CurrentTimeSec)
+                {
+                    break;
+                }
 
 				result++;
 				lastTimeAdded = newLastTimeAdded;
@@ -105,7 +112,7 @@ namespace EnergySuite
 				energySuiteValueBehaviour.Add(result, true, lastTimeAdded);
 			}
 
-			waitForCheck = false;
+			this.waitForCheck = false;
 		}
 
 		public void CheckCanAddOne()

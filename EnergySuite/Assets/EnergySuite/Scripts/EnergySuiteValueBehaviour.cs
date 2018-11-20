@@ -22,22 +22,31 @@ namespace EnergySuite
 			{
 				TimeServHandler.CheckAmountAdded();
 			}
-			else {
+			else
+            {
 				TimeServHandler.CheckAmountAdded(0);
 			}
 
-			if (TimeBasedValue.IsFull())
-				currentState = State.Full;
-			else
-				currentState = State.Adding;
+            if (TimeBasedValue.IsFull())
+            {
+                currentState = State.Full;
+            }
+            else
+            {
+                currentState = State.Adding;
+            }
 		}
 
 		private void Adding_Tick()
 		{
-			if (TimeBasedValue.IsFull())
-				currentState = State.Full;
-			else
-				TimeServHandler.Update();
+            if (TimeBasedValue.IsFull())
+            {
+                currentState = State.Full;
+            }
+            else
+            {
+                TimeServHandler.Update();
+            }
 		}
 
 		private void Full_Exit()
@@ -51,14 +60,20 @@ namespace EnergySuite
 
 			if (setTime)
 			{
-				if (customTime == -1)
-					TimeBasedValue.SetTimeLastAdded();
-				else
-					TimeBasedValue.SetTimeLastAdded(customTime);
+                if (customTime == -1)
+                {
+                    TimeBasedValue.SetTimeLastAdded();
+                }
+                else
+                {
+                    TimeBasedValue.SetTimeLastAdded(customTime);
+                }
 			}
 
-			if (TimeBasedValue.IsFull())
-				currentState = State.Full;
+            if (TimeBasedValue.IsFull())
+            {
+                currentState = State.Full;
+            }
 		}
 
 		public bool Use(int amount)

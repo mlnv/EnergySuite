@@ -5,7 +5,7 @@ namespace EnergySuite
 {
     public class TimeServer
     {
-        const string LastClosedTimeKey = "LastClosedTime";
+        private const string LastClosedTimeKey = "LastClosedTime";
 
         public TimeServer()
         {
@@ -14,12 +14,12 @@ namespace EnergySuite
 
         public void SetLastClosedTime()
         {
-            SetLastClosedTimeHandle();
+            this.SetLastClosedTimeHandle();
         }
 
         public long GetLastClosedTime()
         {
-            return GetLastClosedTimeHandle();
+            return this.GetLastClosedTimeHandle();
         }
 
         private void SetLastClosedTimeHandle()
@@ -29,7 +29,7 @@ namespace EnergySuite
 
         private long GetLastClosedTimeHandle()
         {
-            string timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
+            var timeString = ZPlayerPrefs.GetString(LastClosedTimeKey, EnergySuiteBehaviour.CurrentTimeSec.ToString());
             return (long)Convert.ToDouble(timeString);
         }
     }
